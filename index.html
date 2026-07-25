@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopify Speed Optimization | Faster Store, More Sales</title>
+  <meta name="description" content="I optimize slow Shopify stores for speed and Core Web Vitals so more of your visitors turn into buyers. Measurable results, guaranteed." />
+  <meta property="og:title" content="Shopify Speed Optimization | Faster Store, More Sales" />
+  <meta property="og:description" content="Turn your slow Shopify store into a fast one. Measurable speed improvement, guaranteed." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#0b0f14; --bg-soft:#121822; --card:#161d29; --border:#223044; --text:#e6edf5; --muted:#93a1b3; --accent:#22c55e; --accent-2:#16a34a; --danger:#ef4444; --radius:16px; --maxw:1120px; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
+    body { font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; -webkit-font-smoothing:antialiased; }
+    a { color:inherit; text-decoration:none; }
+    .container { max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+    .accent { color:var(--accent); } .muted { color:var(--muted); }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:14px 26px; border-radius:999px; font-weight:700; font-size:16px; cursor:pointer; border:1px solid transparent; transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
+    .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#04120a; box-shadow:0 8px 24px rgba(34,197,94,.28); }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(34,197,94,.4); }
+    .btn-ghost { background:transparent; border-color:var(--border); color:var(--text); }
+    .btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
+    header { position:sticky; top:0; z-index:50; backdrop-filter:blur(10px); background:rgba(11,15,20,.72); border-bottom:1px solid var(--border); }
+    .nav { display:flex; align-items:center; justify-content:space-between; height:68px; }
+    .logo { font-weight:900; font-size:20px; letter-spacing:-.5px; }
+    .logo span { color:var(--accent); }
+    .nav-links { display:flex; gap:28px; align-items:center; }
+    .nav-links a.link { color:var(--muted); font-weight:500; font-size:15px; }
+    .nav-links a.link:hover { color:var(--text); }
+    .hero { padding:90px 0 70px; position:relative; overflow:hidden; }
+    .hero::before { content:""; position:absolute; top:-200px; right:-150px; width:500px; height:500px; background:radial-gradient(circle,rgba(34,197,94,.18),transparent 70%); filter:blur(20px); }
+    .badge { display:inline-flex; align-items:center; gap:8px; padding:7px 14px; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.3); color:var(--accent); border-radius:999px; font-size:13px; font-weight:600; margin-bottom:22px; }
+    .hero h1 { font-size:clamp(34px,6vw,62px); line-height:1.05; font-weight:900; letter-spacing:-1.5px; max-width:860px; }
+    .hero p.sub { font-size:clamp(17px,2.4vw,21px); color:var(--muted); max-width:620px; margin:22px 0 34px; }
+    .hero-cta { display:flex; gap:14px; flex-wrap:wrap; }
+    .hero-stats { display:flex; gap:40px; margin-top:54px; flex-wrap:wrap; }
+    .hero-stats .stat b { display:block; font-size:30px; font-weight:900; color:var(--text); }
+    .hero-stats .stat span { color:var(--muted); font-size:14px; }
+    section.block { padding:80px 0; }
+    .section-head { text-align:center; max-width:640px; margin:0 auto 54px; }
+    .section-head h2 { font-size:clamp(28px,4vw,42px); font-weight:800; letter-spacing:-1px; }
+    .section-head p { color:var(--muted); margin-top:14px; font-size:18px; }
+    .eyebrow { color:var(--accent); font-weight:700; font-size:14px; letter-spacing:1.5px; text-transform:uppercase; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:30px; transition:transform .2s ease, border-color .2s ease; }
+    .card:hover { transform:translateY(-4px); border-color:var(--accent); }
+    .card .ico { font-size:26px; margin-bottom:14px; }
+    .card h3 { font-size:19px; margin-bottom:8px; }
+    .card p { color:var(--muted); font-size:15px; }
+    .ba-wrap { display:grid; grid-template-columns:1fr auto 1fr; gap:24px; align-items:center; }
+    .ba-card { border-radius:var(--radius); padding:34px; text-align:center; border:1px solid var(--border); }
+    .ba-before { background:rgba(239,68,68,.06); border-color:rgba(239,68,68,.3); }
+    .ba-after { background:rgba(34,197,94,.06); border-color:rgba(34,197,94,.35); }
+    .ba-label { font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:14px; }
+    .ba-before .ba-label { color:var(--danger); } .ba-after .ba-label { color:var(--accent); }
+    .ba-score { font-size:72px; font-weight:900; line-height:1; }
+    .ba-before .ba-score { color:var(--danger); } .ba-after .ba-score { color:var(--accent); }
+    .ba-metric { color:var(--muted); font-size:15px; margin-top:12px; }
+    .ba-arrow { font-size:34px; color:var(--accent); }
+    .ba-note { text-align:center; color:var(--muted); font-size:14px; margin-top:22px; }
+    .pricing { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; align-items:stretch; }
+    .price-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:32px; display:flex; flex-direction:column; position:relative; }
+    .price-card.featured { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), 0 20px 50px rgba(34,197,94,.12); }
+    .price-tag { position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--accent); color:#04120a; font-size:12px; font-weight:800; padding:5px 14px; border-radius:999px; letter-spacing:.5px; }
+    .price-card h3 { font-size:20px; }
+    .price-card .amount { font-size:42px; font-weight:900; margin:10px 0 4px; }
+    .price-card ul { list-style:none; margin:22px 0; display:flex; flex-direction:column; gap:12px; }
+    .price-card li { font-size:15px; color:var(--muted); display:flex; gap:10px; align-items:flex-start; }
+    .price-card li::before { content:"✓"; color:var(--accent); font-weight:800; }
+    .price-card li.off { opacity:.4; } .price-card li.off::before { content:"—"; color:var(--muted); }
+    .price-card .btn { width:100%; justify-content:center; margin-top:auto; }
+    .guarantee { background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(34,197,94,.02)); border:1px solid rgba(34,197,94,.3); border-radius:var(--radius); padding:44px; text-align:center; }
+    .guarantee .ico { font-size:44px; } .guarantee h2 { font-size:30px; margin:12px 0; }
+    .guarantee p { color:var(--muted); max-width:560px; margin:0 auto; font-size:17px; }
+    .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:22px; }
+    .step { background:var(--bg-soft); border:1px solid var(--border); border-radius:var(--radius); padding:28px; }
+    .step .num { width:40px; height:40px; border-radius:50%; background:rgba(34,197,94,.12); color:var(--accent); font-weight:800; display:grid; place-items:center; margin-bottom:16px; border:1px solid rgba(34,197,94,.3); }
+    .step h3 { font-size:17px; margin-bottom:6px; } .step p { color:var(--muted); font-size:14px; }
+    .final-cta { text-align:center; background:var(--bg-soft); border:1px solid var(--border); border-radius:24px; padding:60px 30px; }
+    .final-cta h2 { font-size:clamp(28px,4vw,40px); font-weight:800; }
+    .final-cta p { color:var(--muted); margin:14px auto 30px; max-width:520px; font-size:18px; }
+    footer { border-top:1px solid var(--border); padding:34px 0; margin-top:40px; }
+    .foot { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; color:var(--muted); font-size:14px; }
+    .foot a:hover { color:var(--accent); }
+    @media (max-width:860px) { .grid-3,.pricing,.steps { grid-template-columns:1fr; } .ba-wrap { grid-template-columns:1fr; } .ba-arrow { transform:rotate(90deg); } .nav-links { display:none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="logo">David Dobrovský<span>.</span></div>
+      <nav class="nav-links">
+        <a class="link" href="#problem">Why speed</a>
+        <a class="link" href="#results">Results</a>
+        <a class="link" href="#pricing">Pricing</a>
+        <a class="link" href="#contact">Contact</a>
+        <a class="btn btn-primary" href="#pricing">Get started</a>
+      </nav>
+    </div>
+  </header>
+  <section class="hero">
+    <div class="container">
+      <span class="badge">⚡ Shopify Speed Optimization Specialist</span>
+      <h1>Your slow Shopify store is <span class="accent">quietly killing sales.</span></h1>
+      <p class="sub">A 1-second delay can cut conversions by up to 7%. I make your store fast — so more visitors actually become buyers. Measurable results, or your money back.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#contact">Get a free speed assessment →</a>
+        <a class="btn btn-ghost" href="#pricing">See packages</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><b>90+</b><span>Target mobile score</span></div>
+        <div class="stat"><b><2.5s</b><span>Target load time (LCP)</span></div>
+        <div class="stat"><b>100%</b><span>Money-back guarantee</span></div>
+      </div>
+    </div>
+  </section>
+  <section class="block" id="problem">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow">The problem</div>
+        <h2>Speed is not a "nice to have". It's revenue.</h2>
+        <p>Most Shopify stores are slow on mobile — where 70% of your traffic comes from. Here's what that costs you.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card"><div class="ico">📉</div><h3>Lost conversions</h3><p>Visitors leave before your products even load. Slow stores lose buyers every single day.</p></div>
+        <div class="card"><div class="ico">🔍</div><h3>Lower Google ranking</h3><p>Google ranks mobile-first and uses Core Web Vitals. A slow store gets buried in search.</p></div>
+        <div class="card"><div class="ico">💸</div><h3>Wasted ad spend</h3><p>You pay for clicks that bounce on a slow page. Faster load = more from every ad dollar.</p></div>
+      </div>
+    </div>
+  </section>
+  <section class="block" id="results" style="background: var(--bg-soft);">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow">Real results</div>
+        <h2>Before & After</h2>
+        <p>Real Google PageSpeed scores from a store I optimized. Replace these numbers with your own case study.</p>
+      </div>
+      <div class="ba-wrap">
+        <div class="ba-card ba-before"><div class="ba-label">Before · Mobile</div><div class="ba-score">77</div><div class="ba-metric">LCP 5.4s · Speed Index 3.6s</div></div>
+        <div class="ba-arrow">→</div>
+        <div class="ba-card ba-after"><div class="ba-label">After · Mobile</div><div class="ba-score">95</div><div class="ba-metric">LCP 1.8s · Speed Index 1.4s</div></div>
+      </div>
+      <p class="ba-note">📸 Tip: swap these cards for real PageSpeed screenshots from your own store once you finish optimizing it.</p>
+    </div>
+  </section>
+  <section class="block" id="pricing">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow">Packages</div>
+        <h2>Simple, fixed pricing</h2>
+        <p>Pick a package. No hourly billing, no surprises — you know exactly what you get.</p>
+      </div>
+      <div class="pricing">
+        <div class="price-card">
+          <h3>Speed Audit</h3><div class="amount">$79</div>
+          <p class="muted">A detailed report of what's slowing your store down.</p>
+          <ul><li>Full speed audit (mobile + desktop)</li><li>Prioritized action report</li><li>Before performance snapshot</li><li class="off">Optimization work</li><li class="off">Support</li></ul>
+          <a class="btn btn-ghost" href="#contact">Choose Audit</a>
+        </div>
+        <div class="price-card featured">
+          <div class="price-tag">MOST POPULAR</div>
+          <h3>Speed Boost</h3><div class="amount">$249</div>
+          <p class="muted">Full optimization to make your store genuinely fast.</p>
+          <ul><li>Everything in Audit</li><li>Image optimization &amp; resizing</li><li>Code & script optimization</li><li>Before/After report with real numbers</li><li>7 days of support</li></ul>
+          <a class="btn btn-primary" href="#contact">Choose Boost</a>
+        </div>
+        <div class="price-card">
+          <h3>Full Optimization</h3><div class="amount">$549</div>
+          <p class="muted">The complete package for stores that need it all.</p>
+          <ul><li>Everything in Speed Boost</li><li>App / bloat cleanup</li><li>Advanced minification</li><li>Before/After report with real numbers</li><li>14 days of support</li></ul>
+          <a class="btn btn-ghost" href="#contact">Choose Full</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="block">
+    <div class="container">
+      <div class="guarantee">
+        <div class="ico">🛡️</div>
+        <h2>Measurable improvement, or your money back</h2>
+        <p>I'm confident in my work. If I can't measurably improve your store's speed score, you get a full refund. Zero risk for you.</p>
+      </div>
+    </div>
+  </section>
+  <section class="block" id="process" style="background: var(--bg-soft);">
+    <div class="container">
+      <div class="section-head"><div class="eyebrow">How it works</div><h2>Four simple steps</h2></div>
+      <div class="steps">
+        <div class="step"><div class="num">1</div><h3>Free assessment</h3><p>Send me your store URL. I'll show you where you're losing speed — free.</p></div>
+        <div class="step"><div class="num">2</div><h3>You pick a package</h3><p>Choose the scope that fits. Fixed price, clear deliverables.</p></div>
+        <div class="step"><div class="num">3</div><h3>I optimize</h3><p>I do the work without touching your design. Backup kept, always.</p></div>
+        <div class="step"><div class="num">4</div><h3>Before/After report</h3><p>You get real numbers proving exactly what improved.</p></div>
+      </div>
+    </div>
+  </section>
+  <section class="block" id="contact">
+    <div class="container">
+      <div class="final-cta">
+        <h2>Let's make your store fly →</h2>
+        <p>Send me your store URL for a free, no-obligation speed assessment. I'll reply fast.</p>
+        <div class="hero-cta" style="justify-content:center;">
+          <a class="btn btn-primary" href="https://www.fiverr.com/david_dobrovsky/optimize-and-boost-your-shopify-store-speed/" target="_blank" rel="noopener">Order on Fiverr →</a>
+          <a class="btn btn-ghost" href="mailto:tech@davidrdobrovsky.com">Email me</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <div class="container foot">
+      <div class="logo">David Dobrovský<span>.</span></div>
+      <div>© <span id="year"></span> David Dobrovský · Shopify Speed Optimization</div>
+      <div style="display:flex; gap:18px;">
+        <a href="https://www.fiverr.com/david_dobrovsky/optimize-and-boost-your-shopify-store-speed/" target="_blank" rel="noopener">Fiverr</a>
+        <a href="mailto:tech@davidrdobrovsky.com">Email</a>
+      </div>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
