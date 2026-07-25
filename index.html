@@ -48,9 +48,7 @@
     .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
     .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:30px; transition:transform .2s ease, border-color .2s ease; }
     .card:hover { transform:translateY(-4px); border-color:var(--accent); }
-    .card .ico { font-size:26px; margin-bottom:14px; }
-    .card h3 { font-size:19px; margin-bottom:8px; }
-    .card p { color:var(--muted); font-size:15px; }
+    .card .ico { font-size:26px; margin-bottom:14px; } .card h3 { font-size:19px; margin-bottom:8px; } .card p { color:var(--muted); font-size:15px; }
     .ba-wrap { display:grid; grid-template-columns:1fr auto 1fr; gap:24px; align-items:center; }
     .ba-card { border-radius:var(--radius); padding:34px; text-align:center; border:1px solid var(--border); }
     .ba-before { background:rgba(239,68,68,.06); border-color:rgba(239,68,68,.3); }
@@ -66,8 +64,7 @@
     .price-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:32px; display:flex; flex-direction:column; position:relative; }
     .price-card.featured { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), 0 20px 50px rgba(34,197,94,.12); }
     .price-tag { position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--accent); color:#04120a; font-size:12px; font-weight:800; padding:5px 14px; border-radius:999px; letter-spacing:.5px; }
-    .price-card h3 { font-size:20px; }
-    .price-card .amount { font-size:42px; font-weight:900; margin:10px 0 4px; }
+    .price-card h3 { font-size:20px; } .price-card .amount { font-size:42px; font-weight:900; margin:10px 0 4px; }
     .price-card ul { list-style:none; margin:22px 0; display:flex; flex-direction:column; gap:12px; }
     .price-card li { font-size:15px; color:var(--muted); display:flex; gap:10px; align-items:flex-start; }
     .price-card li::before { content:"✓"; color:var(--accent); font-weight:800; }
@@ -86,7 +83,35 @@
     footer { border-top:1px solid var(--border); padding:34px 0; margin-top:40px; }
     .foot { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; color:var(--muted); font-size:14px; }
     .foot a:hover { color:var(--accent); }
-    @media (max-width:860px) { .grid-3,.pricing,.steps { grid-template-columns:1fr; } .ba-wrap { grid-template-columns:1fr; } .ba-arrow { transform:rotate(90deg); } .nav-links { display:none; } }
+    .lead { background:linear-gradient(135deg,rgba(34,197,94,.07),rgba(34,197,94,.01)); border:1px solid rgba(34,197,94,.3); border-radius:24px; padding:46px; display:grid; grid-template-columns:1fr 1fr; gap:44px; align-items:center; }
+    .lead .lead-copy h2 { font-size:clamp(26px,3.4vw,36px); font-weight:800; letter-spacing:-1px; margin-top:4px; }
+    .lead .lead-copy p.lead-sub { color:var(--muted); font-size:17px; margin:14px 0 24px; }
+    .lead form { display:flex; flex-direction:column; gap:12px; max-width:430px; }
+    .lead .field-in { display:flex; flex-direction:column; gap:6px; }
+    .lead label { font-size:13px; font-weight:600; color:var(--text); }
+    .lead input { width:100%; padding:13px 15px; border-radius:10px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:15px; font-family:inherit; }
+    .lead input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(34,197,94,.15); }
+    .lead .btn { justify-content:center; margin-top:4px; }
+    .lead .fineprint { font-size:12.5px; color:var(--muted); margin-top:8px; }
+    .lead .lead-msg { display:none; padding:13px 15px; border-radius:10px; font-size:14px; margin-top:8px; }
+    .lead .lead-msg.ok { display:block; background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.4); color:#86efac; }
+    .lead .lead-msg.err { display:block; background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.4); color:#fca5a5; }
+    .preview { perspective:1200px; }
+    .doc { background:#fff; color:#0f172a; border-radius:14px; padding:26px 26px 22px; box-shadow:0 30px 70px rgba(0,0,0,.5); transform:rotateY(-7deg) rotateX(3deg); font-size:13px; }
+    .doc .d-brand { font-weight:900; color:#0f172a; font-size:15px; } .doc .d-brand span { color:var(--accent-2); }
+    .doc .d-sub { color:#64748b; font-size:11px; }
+    .doc .d-title { font-weight:900; font-size:18px; margin:10px 0 0; color:#0f172a; border-bottom:3px solid var(--accent); padding-bottom:12px; }
+    .doc .d-scores { display:flex; gap:14px; align-items:center; justify-content:center; margin:18px 0; }
+    .doc .d-ring { text-align:center; } .doc .d-ring b { display:block; font-size:36px; font-weight:900; line-height:1; } .doc .d-ring small { color:#64748b; font-size:10px; }
+    .doc .d-red { color:#dc2626; } .doc .d-green { color:#16a34a; } .doc .d-arrow { color:var(--accent-2); font-size:20px; font-weight:900; }
+    .doc .d-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid #e2e8f0; color:#334155; }
+    .doc .d-row .p { font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; }
+    .doc .d-row .p.bad { background:#fee2e2; color:#dc2626; } .doc .d-row .p.good { background:#dcfce7; color:#16a34a; }
+    .doc .d-pdf { display:inline-flex; align-items:center; gap:6px; margin-top:16px; background:#0f172a; color:#fff; font-size:11px; font-weight:700; padding:7px 13px; border-radius:999px; }
+    @media (max-width:860px) {
+      .grid-3,.pricing,.steps { grid-template-columns:1fr; } .ba-wrap { grid-template-columns:1fr; } .ba-arrow { transform:rotate(90deg); } .nav-links { display:none; }
+      .lead { grid-template-columns:1fr; padding:30px; gap:32px; } .doc { transform:none; }
+    }
   </style>
 </head>
 <body>
@@ -96,9 +121,9 @@
       <nav class="nav-links">
         <a class="link" href="#problem">Why speed</a>
         <a class="link" href="#results">Results</a>
+        <a class="link" href="#free-report">Free report</a>
         <a class="link" href="#pricing">Pricing</a>
-        <a class="link" href="#contact">Contact</a>
-        <a class="btn btn-primary" href="#pricing">Get started</a>
+        <a class="btn btn-primary" href="#free-report">Free report</a>
       </nav>
     </div>
   </header>
@@ -108,7 +133,7 @@
       <h1>Your slow Shopify store is <span class="accent">quietly killing sales.</span></h1>
       <p class="sub">A 1-second delay can cut conversions by up to 7%. I make your store fast — so more visitors actually become buyers. Measurable results, or your money back.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary" href="#contact">Get a free speed assessment →</a>
+        <a class="btn btn-primary" href="#free-report">Get your free speed report →</a>
         <a class="btn btn-ghost" href="#pricing">See packages</a>
       </div>
       <div class="hero-stats">
@@ -147,6 +172,50 @@
       <p class="ba-note">📸 Tip: swap these cards for real PageSpeed screenshots from your own store once you finish optimizing it.</p>
     </div>
   </section>
+  <section class="block" id="free-report">
+    <div class="container">
+      <div class="lead">
+        <div class="lead-copy">
+          <div class="eyebrow">Free speed report</div>
+          <h2>Get your store's free speed report — as a PDF</h2>
+          <p class="lead-sub">Drop in your store URL and email. I'll personally run a full mobile & desktop speed analysis and send you a professional PDF report: exactly what's slowing you down and how to fix it. 100% free, no obligation.</p>
+          <form id="leadForm">
+            <input type="hidden" name="access_key" value="a64b9d3a-557b-4dbf-8069-d45b567d7cc3" />
+            <input type="hidden" name="subject" value="New free speed report request" />
+            <input type="hidden" name="from_name" value="davidrdobrovsky.com" />
+            <div class="field-in">
+              <label for="lf-url">Your store URL</label>
+              <input id="lf-url" name="store_url" type="text" placeholder="https://yourstore.myshopify.com" required />
+            </div>
+            <div class="field-in">
+              <label for="lf-email">Your email</label>
+              <input id="lf-email" name="email" type="email" placeholder="you@example.com" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Send me my free report →</button>
+            <div class="fineprint">🔒 No spam. Delivered as a PDF to your inbox, usually within 24 hours.</div>
+            <div class="lead-msg" id="leadMsg"></div>
+          </form>
+        </div>
+        <div class="preview" aria-hidden="true">
+          <div class="doc">
+            <div class="d-brand">David Dobrovský<span>.</span></div>
+            <div class="d-sub">Shopify Speed Optimization</div>
+            <div class="d-title">Website Speed Audit Report</div>
+            <div class="d-scores">
+              <div class="d-ring"><b class="d-red">77</b><small>Before · Mobile</small></div>
+              <div class="d-arrow">→</div>
+              <div class="d-ring"><b class="d-green">95</b><small>After · Target</small></div>
+            </div>
+            <div class="d-row"><span>Largest Contentful Paint</span><span class="p bad">5.4s</span></div>
+            <div class="d-row"><span>Speed Index</span><span class="p bad">3.6s</span></div>
+            <div class="d-row"><span>Total Blocking Time</span><span class="p good">10ms</span></div>
+            <div class="d-row"><span>Cumulative Layout Shift</span><span class="p good">0.005</span></div>
+            <div class="d-pdf">📄 Delivered as PDF</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
   <section class="block" id="pricing">
     <div class="container">
       <div class="section-head">
@@ -159,20 +228,20 @@
           <h3>Speed Audit</h3><div class="amount">$79</div>
           <p class="muted">A detailed report of what's slowing your store down.</p>
           <ul><li>Full speed audit (mobile + desktop)</li><li>Prioritized action report</li><li>Before performance snapshot</li><li class="off">Optimization work</li><li class="off">Support</li></ul>
-          <a class="btn btn-ghost" href="#contact">Choose Audit</a>
+          <a class="btn btn-ghost" href="#free-report">Choose Audit</a>
         </div>
         <div class="price-card featured">
           <div class="price-tag">MOST POPULAR</div>
           <h3>Speed Boost</h3><div class="amount">$249</div>
           <p class="muted">Full optimization to make your store genuinely fast.</p>
-          <ul><li>Everything in Audit</li><li>Image optimization &amp; resizing</li><li>Code & script optimization</li><li>Before/After report with real numbers</li><li>7 days of support</li></ul>
-          <a class="btn btn-primary" href="#contact">Choose Boost</a>
+          <ul><li>Everything in Audit</li><li>Image optimization & resizing</li><li>Code & script optimization</li><li>Before/After report with real numbers</li><li>7 days of support</li></ul>
+          <a class="btn btn-primary" href="https://www.fiverr.com/david_dobrovsky/optimize-and-boost-your-shopify-store-speed/" target="_blank" rel="noopener">Choose Boost</a>
         </div>
         <div class="price-card">
           <h3>Full Optimization</h3><div class="amount">$549</div>
           <p class="muted">The complete package for stores that need it all.</p>
           <ul><li>Everything in Speed Boost</li><li>App / bloat cleanup</li><li>Advanced minification</li><li>Before/After report with real numbers</li><li>14 days of support</li></ul>
-          <a class="btn btn-ghost" href="#contact">Choose Full</a>
+          <a class="btn btn-ghost" href="#free-report">Choose Full</a>
         </div>
       </div>
     </div>
@@ -219,6 +288,31 @@
       </div>
     </div>
   </footer>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const leadForm = document.getElementById('leadForm');
+    if (leadForm) {
+      leadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById('leadMsg');
+        const btn = leadForm.querySelector('button[type=submit]');
+        btn.disabled = true; btn.textContent = 'Sending…';
+        try {
+          const res = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST', headers: { 'Accept': 'application/json' }, body: new FormData(leadForm)
+          });
+          const data = await res.json();
+          if (data.success) {
+            msg.className = 'lead-msg ok';
+            msg.textContent = '✓ Thanks! Your request is in. I\'ll email your free PDF report within 24 hours.';
+            leadForm.reset();
+          } else { throw new Error(data.message || 'Submission failed'); }
+        } catch (err) {
+          msg.className = 'lead-msg err';
+          msg.innerHTML = '⚠ Something went wrong. Please email me directly at <a href="mailto:tech@davidrdobrovsky.com" style="color:#86efac;">tech@davidrdobrovsky.com</a>';
+        } finally { btn.disabled = false; btn.textContent = 'Send me my free report →'; }
+      });
+    }
+  </script>
 </body>
 </html>
