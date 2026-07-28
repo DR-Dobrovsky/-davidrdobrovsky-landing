@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lead Tracker - David Dobrovsky</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root{--ink:#0f172a;--body:#334155;--muted:#64748b;--line:#e2e8f0;--bg:#f8fafc;--white:#fff;
+        --accent:#16a34a;--accent2:#15803d;--red:#dc2626;--reds:#fee2e2;--amb:#d97706;--ambs:#fef3c7;--grn:#16a34a;--grns:#dcfce7;--blue:#1e40af;--blues:#eff6ff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--body);line-height:1.6;padding:24px}
+  .wrap{max-width:1240px;margin:0 auto}
+  h1{font-size:24px;font-weight:900;color:var(--ink);letter-spacing:-.5px}
+  h1 span{color:var(--accent)}
+  .tag{color:var(--muted);font-size:14px;margin-bottom:20px}
+  .panel{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:24px;margin-bottom:20px;box-shadow:0 2px 10px rgba(15,23,42,.04)}
+  .panel h2{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
+  label{display:block;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:5px}
+  input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:14px;font-family:inherit;color:var(--ink);background:#fff}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(22,163,74,.12)}
+  textarea{min-height:110px;resize:vertical;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .field{margin-bottom:14px}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:11px 20px;border-radius:999px;font-weight:800;font-size:14px;cursor:pointer;border:1px solid transparent;font-family:inherit}
+  .p{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04120a}
+  .p:hover{filter:brightness(1.06)}
+  .p:disabled{opacity:.5;cursor:not-allowed}
+  .g{background:#fff;border-color:var(--line);color:var(--ink)}
+  .g:hover{border-color:var(--accent);color:var(--accent)}
+  .d{background:#fff;border-color:#fecaca;color:var(--red)}
+  .acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
+  .status{display:none;margin-top:14px;padding:11px 14px;border-radius:9px;font-size:14px}
+  .status.show{display:block}
+  .status.i{background:var(--blues);color:var(--blue);border:1px solid #bfdbfe}
+  .status.e{background:var(--reds);color:var(--red);border:1px solid #fecaca}
+  .status.o{background:var(--grns);color:var(--grn);border:1px solid #bbf7d0}
+  .spin{width:14px;height:14px;border:2px solid rgba(4,18,10,.3);border-top-color:#04120a;border-radius:50%;display:inline-block;animation:s .7s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);white-space:nowrap}
+  td.co{font-weight:700;color:var(--ink)}
+  .sc{font-weight:900;font-size:15px}
+  .r{color:var(--red)}.a{color:var(--amb)}.gr{color:var(--grn)}
+  select.st{padding:5px 8px;font-size:12px;font-weight:700;border-radius:999px;width:auto;min-width:118px}
+  .mini{padding:5px 11px;font-size:12px;border-radius:999px;font-weight:700;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);font-family:inherit}
+  .mini:hover{border-color:var(--accent);color:var(--accent)}
+  .empty{text-align:center;color:var(--muted);padding:34px;font-size:14px}
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+  .stat{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+  .stat b{display:block;font-size:26px;font-weight:900;color:var(--ink)}
+  .stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  dialog{border:none;border-radius:14px;padding:0;max-width:660px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  dialog::backdrop{background:rgba(15,23,42,.5)}
+  .dlg{padding:26px}
+  .dlg h3{font-size:18px;color:var(--ink);margin-bottom:4px}
+  .dlg .sub{font-size:13px;color:var(--muted);margin-bottom:16px}
+  .mail{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:16px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;white-space:pre-wrap;max-height:340px;overflow:auto;color:var(--ink)}
+  .tbl-wrap{overflow-x:auto}
+  @media(max-width:900px){.row{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Lead Tracker<span>.</span></h1>
+  <div class="tag">Measure, generate emails, export CSV for Notion. Data is saved in this browser only.</div>
+
+  <div class="stats">
+    <div class="stat"><b id="s-total">0</b><span>Total leads</span></div>
+    <div class="stat"><b id="s-emailed">0</b><span>Emailed</span></div>
+    <div class="stat"><b id="s-replied">0</b><span>Replied</span></div>
+    <div class="stat"><b id="s-due">0</b><span>Follow-up due</span></div>
+    <div class="stat"><b id="s-clients">0</b><span>Clients</span></div>
+  </div>
+
+  <div class="panel">
+    <h2>1 - Add and measure leads</h2>
+    <div class="field">
+      <label for="key">Google PageSpeed API key</label>
+      <input id="key" type="password" placeholder="Paste your free API key (saved in this browser only)" />
+      <div class="hint">Same key as the audit tool. Get one free at <a href="https://developers.google.com/speed/docs/insights/v5/get-started" target="_blank" rel="noopener">Google Cloud</a>.</div>
+    </div>
+    <div class="field">
+      <label for="bulk">Store URLs - one per line</label>
+      <textarea id="bulk" placeholder="pinkcityprints.com, Molly, hello@pinkcityprints.com&#10;folcland.com, , shop@folcland.com"></textarea>
+      <div class="hint">Format: <b>domain, contact name, email</b> - name and email are optional.</div>
+    </div>
+    <div class="acts">
+      <button id="run" class="btn p">Measure and add leads</button>
+      <button id="addBlank" class="btn g">Add one manually</button>
+    </div>
+    <div id="st" class="status"></div>
+  </div>
+
+  <div class="panel">
+    <h2>2 - Pipeline</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Company</th><th>Mob</th><th>Desk</th><th>LCP</th><th>Email</th><th>Contact</th>
+          <th>Status</th><th>Emailed</th><th>Follow-up</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div id="empty" class="empty">No leads yet. Paste some domains above and hit <b>Measure and add leads</b>.</div>
+  </div>
+
+  <div class="panel">
+    <h2>3 - Export to Notion</h2>
+    <div class="acts">
+      <button id="csv" class="btn p">Download CSV for Notion</button>
+      <button id="json" class="btn g">Backup JSON</button>
+      <label for="imp" class="btn g" style="margin:0">Restore JSON</label>
+      <input id="imp" type="file" accept=".json" style="display:none" />
+      <button id="clear" class="btn d">Clear all</button>
+    </div>
+    <div class="hint" style="margin-top:10px">In Notion: open your database, then the ... menu, then <b>Merge with CSV</b> to update (or <b>Import</b> the first time).</div>
+  </div>
+
+  <div class="panel">
+    <h2>4 - Push to Notion (via your Cloudflare Worker)</h2>
+    <div class="row">
+      <div class="field">
+        <label for="worker">Worker URL</label>
+        <input id="worker" type="text" placeholder="https://lead-notion.your-name.workers.dev" />
+        <div class="hint">Your deployed Cloudflare Worker.</div>
+      </div>
+      <div class="field">
+        <label for="dbid">Notion Database ID</label>
+        <input id="dbid" type="text" placeholder="32-character ID from your Notion DB URL" />
+        <div class="hint">The Notion token lives on the Worker as a secret - never here.</div>
+      </div>
+    </div>
+    <div class="acts">
+      <button id="push" class="btn p">Push all leads to Notion</button>
+      <span class="hint" id="pushCount"></span>
+    </div>
+    <div id="pst" class="status"></div>
+  </div>
+</div>
+
+<dialog id="dlg"><div class="dlg">
+  <h3 id="dlg-t">Email draft</h3>
+  <div class="sub" id="dlg-s"></div>
+  <div class="mail" id="dlg-b"></div>
+  <div class="acts" style="margin-top:16px">
+    <button id="cp" class="btn p">Copy to clipboard</button>
+    <button id="mailto" class="btn g">Open in email app</button>
+    <button id="cl" class="btn g">Close</button>
+  </div>
+</div></dialog>
+
+<script>
+const $=i=>document.getElementById(i);
+const LS='dd_leads_v1', LSK='psi_api_key';
+let leads=JSON.parse(localStorage.getItem(LS)||'[]');
+$('key').value=localStorage.getItem(LSK)||'';
+
+const STATUSES=['Not contacted','Emailed','Follow-up 1','Follow-up 2','Replied','Report sent','Client','Not interested'];
+const save=()=>{localStorage.setItem(LS,JSON.stringify(leads));render();};
+const msg=(t,c)=>{const s=$('st');s.className='status show '+c;s.innerHTML=t;};
+const col=v=>v==null?'':v>=90?'gr':v>=50?'a':'r';
+const dash='-';
+const today=()=>new Date().toISOString().slice(0,10);
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
+const titleize=d=>d.replace(/^www\./,'').replace(/\.(com|co\.uk|co|io|net|org|shop|store|london|studio|design)$/,'')
+  .split(/[-.]/).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+
+async function psi(url,strategy,key){
+  const api='https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url='+encodeURIComponent(url)
+    +'&strategy='+strategy+'&category=performance'+(key?'&key='+encodeURIComponent(key):'');
+  const r=await fetch(api); const d=await r.json();
+  if(d.error) throw new Error(d.error.message||('HTTP '+r.status));
+  const lr=d.lighthouseResult, a=lr.audits;
+  return {score:Math.round(lr.categories.performance.score*100),
+    lcp:a['largest-contentful-paint'].displayValue,lcpMs:a['largest-contentful-paint'].numericValue,
+    fcp:a['first-contentful-paint'].displayValue,tbt:a['total-blocking-time'].displayValue,
+    tbtMs:a['total-blocking-time'].numericValue,cls:a['cumulative-layout-shift'].displayValue,
+    si:a['speed-index'].displayValue,bytes:a['total-byte-weight']?a['total-byte-weight'].displayValue:''};
+}
+
+function buildEmail(l){
+  const brand=l.company, who=l.contact?l.contact:null;
+  const greet=who?('Hi '+who+',') : ('Hi '+brand+' team,');
+  const m=l.mobile, lcp=l.lcp||dash;
+  let problem;
+  if(l.tbtMs>600) problem='The biggest issue was '+l.tbt+' of Total Blocking Time, alongside an LCP of '+lcp+'.';
+  else if(l.lcpMs>8000) problem='The largest content on the page took '+lcp+" to appear (Google's target is under 2.5s).";
+  else problem='Largest Contentful Paint came in at '+lcp+", above Google's 2.5s target.";
+  const sub = m<50 ? (brand+' scores '+m+'/100 on mobile') : ('Quick mobile-speed finding for '+brand);
+  const deskTxt = (l.desktop!=null) ? (' (desktop '+l.desktop+'/100)') : '';
+  const body=
+greet+"
+
+"+
+"I was looking through the "+brand+" storefront - the product presentation really stands out, which is exactly why fast mobile loading matters so much.
+
+"+
+"I ran your homepage through Google PageSpeed. The current mobile lab score was "+m+"/100"+deskTxt+". "+problem+"
+
+"+
+"This is a simulated mobile test rather than every customer's exact experience, but it points to concrete, fixable opportunities - mainly image delivery, render-blocking scripts and unused code, not a redesign.
+
+"+
+"I specialize in Shopify speed optimization. Would you like me to send you a free PDF report with the findings and the fixes I'd prioritize?
+
+"+
+"Best,
+David
+Shopify Speed Optimization
+davidrdobrovsky.com";
+  return {sub,body};
+}
+
+function render(){
+  const tb=$('rows'); tb.innerHTML='';
+  $('empty').style.display=leads.length?'none':'block';
+  leads.forEach((l,i)=>{
+    const tr=document.createElement('tr');
+    const overdue=l.followUp && l.followUp<=today() && !['Replied','Report sent','Client','Not interested'].includes(l.status);
+    tr.innerHTML=
+      '<td class="co">'+l.company+'<div style="font-weight:400;color:var(--muted);font-size:11px">'+l.domain+'</div></td>'+
+      '<td class="sc '+col(l.mobile)+'">'+(l.mobile==null?dash:l.mobile)+'</td>'+
+      '<td class="sc '+col(l.desktop)+'">'+(l.desktop==null?dash:l.desktop)+'</td>'+
+      '<td>'+(l.lcp||dash)+'</td>'+
+      '<td><input value="'+(l.email||'')+'" data-f="email" data-i="'+i+'" placeholder="email@..." style="min-width:170px;padding:5px 8px;font-size:12px"></td>'+
+      '<td><input value="'+(l.contact||'')+'" data-f="contact" data-i="'+i+'" placeholder="name" style="min-width:90px;padding:5px 8px;font-size:12px"></td>'+
+      '<td><select class="st" data-f="status" data-i="'+i+'">'+STATUSES.map(s=>'<option'+(s===l.status?' selected':'')+'>'+s+'</option>').join('')+'</select></td>'+
+      '<td style="white-space:nowrap;font-size:12px">'+(l.emailedOn||dash)+'</td>'+
+      '<td style="white-space:nowrap;font-size:12px;'+(overdue?'color:var(--red);font-weight:800':'')+'">'+(l.followUp||dash)+'</td>'+
+      '<td style="white-space:nowrap">'+
+        '<button class="mini" data-act="mail" data-i="'+i+'">Email</button> '+
+        '<button class="mini" data-act="sent" data-i="'+i+'">Mark sent</button> '+
+        '<button class="mini" data-act="del" data-i="'+i+'">x</button>'+
+      '</td>';
+    tb.appendChild(tr);
+  });
+  $('s-total').textContent=leads.length;
+  $('s-emailed').textContent=leads.filter(l=>l.emailedOn).length;
+  $('s-replied').textContent=leads.filter(l=>['Replied','Report sent','Client'].includes(l.status)).length;
+  $('s-due').textContent=leads.filter(l=>l.followUp&&l.followUp<=today()&&!['Replied','Report sent','Client','Not interested'].includes(l.status)).length;
+  $('s-clients').textContent=leads.filter(l=>l.status==='Client').length;
+}
+
+$('rows').addEventListener('change',e=>{
+  const f=e.target.dataset.f, i=e.target.dataset.i;
+  if(!f) return;
+  leads[i][f]=e.target.value;
+  if(f==='status'&&e.target.value==='Emailed'&&!leads[i].emailedOn){leads[i].emailedOn=today(); leads[i].followUp=addDays(today(),4);}
+  save();
+});
+$('rows').addEventListener('click',e=>{
+  const act=e.target.dataset.act, i=e.target.dataset.i;
+  if(!act) return;
+  const l=leads[i];
+  if(act==='del'){ if(confirm('Remove '+l.company+'?')){leads.splice(i,1);save();} return; }
+  if(act==='sent'){ l.status=l.status==='Emailed'?'Follow-up 1':'Emailed'; l.emailedOn=today(); l.followUp=addDays(today(),4); save(); return; }
+  if(act==='mail'){
+    if(l.mobile==null){alert('Measure this lead first so the email can include real numbers.');return;}
+    const r=buildEmail(l);
+    $('dlg-t').textContent='Email draft - '+l.company;
+    $('dlg-s').innerHTML='<b>To:</b> '+(l.email||'(add an email)')+' &nbsp;|&nbsp; <b>Subject:</b> '+r.sub;
+    $('dlg-b').textContent=r.body;
+    $('cp').onclick=()=>{navigator.clipboard.writeText(r.body);$('cp').textContent='Copied!';setTimeout(()=>$('cp').textContent='Copy to clipboard',1500);};
+    $('mailto').onclick=()=>{window.location.href='mailto:'+(l.email||'')+'?subject='+encodeURIComponent(r.sub)+'&body='+encodeURIComponent(r.body);};
+    $('dlg').showModal();
+  }
+});
+$('cl').onclick=()=>$('dlg').close();
+
+$('addBlank').onclick=()=>{
+  const d=prompt('Domain (e.g. example.com)'); if(!d) return;
+  leads.push({domain:d.trim().replace(/^https?:\/\//,'').replace(/\/$/,''),company:titleize(d.trim()),status:'Not contacted',added:today()});
+  save();
+};
+
+$('run').onclick=async()=>{
+  const key=$('key').value.trim(); if(key) localStorage.setItem(LSK,key);
+  const lines=$('bulk').value.split('
+').map(s=>s.trim()).filter(Boolean);
+  if(!lines.length){msg('Paste at least one domain first.','e');return;}
+  const btn=$('run'); btn.disabled=true;
+  let ok=0, fail=[];
+  for(let n=0;n<lines.length;n++){
+    const parts=lines[n].split(',').map(s=>(s||'').trim());
+    const dRaw=parts[0], contact=parts[1], email=parts[2];
+    const domain=dRaw.replace(/^https?:\/\//,'').replace(/\/$/,'');
+    msg('<span class="spin"></span> Measuring '+(n+1)+'/'+lines.length+': <b>'+domain+'</b> ... (20-40s each)','i');
+    const url='https://'+domain;
+    let rec=leads.find(l=>l.domain===domain);
+    if(!rec){rec={domain,company:titleize(domain),status:'Not contacted',added:today()};leads.push(rec);}
+    if(contact) rec.contact=contact; if(email) rec.email=email;
+    try{
+      const res=await Promise.all([psi(url,'mobile',key),psi(url,'desktop',key)]);
+      const m=res[0], d=res[1];
+      Object.assign(rec,{mobile:m.score,desktop:d.score,lcp:m.lcp,lcpMs:m.lcpMs,fcp:m.fcp,tbt:m.tbt,tbtMs:m.tbtMs,cls:m.cls,si:m.si,bytes:m.bytes,measuredOn:today()});
+      ok++;
+    }catch(err){
+      let t=err.message||'error';
+      if(/quota|429/i.test(t)) t='rate limit - add your free API key';
+      if(/API_KEY_INVALID|not valid/i.test(t)) t='invalid API key';
+      fail.push(domain+' ('+t+')');
+    }
+    save();
+  }
+  btn.disabled=false;
+  msg('Measured '+ok+' of '+lines.length+'.'+(fail.length?(' Failed: '+fail.join('; ')):' Now add emails, then use the Email button per lead.'),fail.length?'e':'o');
+  if(ok) $('bulk').value='';
+};
+
+const CSV_COLS=[['Company','company'],['Website','domain'],['Contact name','contact'],['Contact email','email'],
+  ['Status','status'],['Mobile score','mobile'],['Desktop score','desktop'],['LCP','lcp'],['FCP','fcp'],
+  ['TBT','tbt'],['CLS','cls'],['Speed Index','si'],['Page weight','bytes'],
+  ['Date measured','measuredOn'],['Date emailed','emailedOn'],['Follow-up due','followUp'],['Date added','added'],['Notes','notes']];
+$('csv').onclick=()=>{
+  if(!leads.length){alert('No leads to export.');return;}
+  const esc=v=>{v=(v==null?'':String(v));return /[",
+]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  const csv=[CSV_COLS.map(c=>c[0]).join(',')].concat(leads.map(l=>CSV_COLS.map(c=>esc(l[c[1]])).join(','))).join('
+');
+  dl(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}),'leads-'+today()+'.csv');
+};
+$('json').onclick=()=>dl(new Blob([JSON.stringify(leads,null,2)],{type:'application/json'}),'leads-backup-'+today()+'.json');
+$('imp').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(Array.isArray(d)){leads=d;save();alert('Restored '+d.length+' leads.');}}catch(x){alert('Invalid JSON file.');}};r.readAsText(f);};
+$('clear').onclick=()=>{if(confirm('Delete ALL leads? Export a backup first.')){leads=[];save();}};
+function dl(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
+
+const LSW='dd_worker_url', LSD='dd_notion_db';
+$('worker').value=localStorage.getItem(LSW)||'';
+$('dbid').value=localStorage.getItem(LSD)||'';
+const pmsg=(t,c)=>{const s=$('pst');s.className='status show '+c;s.innerHTML=t;};
+$('push').onclick=async()=>{
+  const url=$('worker').value.trim().replace(/\/$/,''); const db=$('dbid').value.trim();
+  if(!url||!db){pmsg('Enter both your Worker URL and Notion Database ID.','e');return;}
+  localStorage.setItem(LSW,url); localStorage.setItem(LSD,db);
+  if(!leads.length){pmsg('No leads to push.','e');return;}
+  const btn=$('push'); btn.disabled=true; let ok=0, fail=[];
+  for(let i=0;i<leads.length;i++){
+    const l=leads[i];
+    pmsg('<span class="spin"></span> Pushing '+(i+1)+'/'+leads.length+': <b>'+l.company+'</b> ...','i');
+    try{
+      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({databaseId:db,lead:l})});
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok||d.ok===false) throw new Error(d.error||('HTTP '+r.status));
+      ok++;
+    }catch(e){ fail.push(l.company+' ('+(e.message||'error')+')'); }
+  }
+  btn.disabled=false;
+  pmsg('Pushed '+ok+'/'+leads.length+' to Notion.'+(fail.length?(' Failed: '+fail.join('; ')):' Open Notion to confirm.'),fail.length?'e':'o');
+};
+
+render();
+</script>
+</body>
+</html>
