@@ -7,10 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 <style>
   :root{--ink:#0f172a;--body:#334155;--muted:#64748b;--line:#e2e8f0;--bg:#f8fafc;--white:#fff;
-        --accent:#16a34a;--accent2:#15803d;--red:#dc2626;--reds:#fee2e2;--amb:#d97706;--grn:#16a34a;--grns:#dcfce7;--blue:#1e40af;--blues:#eff6ff}
+        --accent:#16a34a;--accent2:#15803d;--red:#dc2626;--reds:#fee2e2;--amb:#d97706;--ambs:#fef3c7;--grn:#16a34a;--grns:#dcfce7;--blue:#1e40af;--blues:#eff6ff}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--body);line-height:1.6;padding:24px}
-  .wrap{max-width:1240px;margin:0 auto}
+  .wrap{max-width:1500px;margin:0 auto}
   h1{font-size:24px;font-weight:900;color:var(--ink);letter-spacing:-.5px}
   h1 span{color:var(--accent)}
   .tag{color:var(--muted);font-size:14px;margin-bottom:20px}
@@ -39,25 +39,39 @@
   .spin{width:14px;height:14px;border:2px solid rgba(4,18,10,.3);border-top-color:#04120a;border-radius:50%;display:inline-block;animation:s .7s linear infinite}
   @keyframes s{to{transform:rotate(360deg)}}
   table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
   th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);white-space:nowrap}
-  td.co{font-weight:700;color:var(--ink)}
-  .sc{font-weight:900;font-size:15px}
+  tr.closed{opacity:.55}
+  .sc{font-weight:900;font-size:15px;text-align:center}
   .r{color:var(--red)}.a{color:var(--amb)}.gr{color:var(--grn)}
-  select.st{padding:5px 8px;font-size:12px;font-weight:700;border-radius:999px;width:auto;min-width:118px}
-  .mini{padding:5px 11px;font-size:12px;border-radius:999px;font-weight:700;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);font-family:inherit}
+  .cell{padding:5px 7px;font-size:12px;border:1px solid transparent;background:transparent}
+  .cell:hover{border-color:var(--line);background:#fff}
+  .cell:focus{border-color:var(--accent);background:#fff}
+  .nm{font-weight:700;color:var(--ink);min-width:150px}
+  .dom{font-size:11px;color:var(--muted)}
+  select.st{padding:5px 8px;font-size:12px;font-weight:700;border-radius:999px;width:auto;min-width:120px}
+  .mini{padding:4px 9px;font-size:11px;border-radius:999px;font-weight:700;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);font-family:inherit;margin-right:3px}
   .mini:hover{border-color:var(--accent);color:var(--accent)}
+  .mini.dl:hover{border-color:var(--red);color:var(--red)}
   .empty{text-align:center;color:var(--muted);padding:34px;font-size:14px}
   .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
   .stat{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
   .stat b{display:block;font-size:26px;font-weight:900;color:var(--ink)}
   .stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-  dialog{border:none;border-radius:14px;padding:0;max-width:660px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .toolbar input,.toolbar select{width:auto;padding:8px 11px;font-size:13px}
+  .toolbar .grow{flex:1;min-width:170px}
+  .count{font-size:12px;color:var(--muted);margin-left:auto}
+  dialog{border:none;border-radius:14px;padding:0;max-width:680px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
   dialog::backdrop{background:rgba(15,23,42,.5)}
   .dlg{padding:26px}
   .dlg h3{font-size:18px;color:var(--ink);margin-bottom:4px}
   .dlg .sub{font-size:13px;color:var(--muted);margin-bottom:16px}
   .mail{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:16px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;white-space:pre-wrap;max-height:340px;overflow:auto;color:var(--ink)}
+  .logwrap{max-height:360px;overflow:auto}
+  .logitem{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .logitem .when{color:var(--muted);white-space:nowrap;font-size:12px;min-width:118px}
+  .logitem .what{color:var(--ink)}
   .tbl-wrap{overflow-x:auto}
   @media(max-width:900px){.row{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
 </style>
@@ -65,7 +79,7 @@
 <body>
 <div class="wrap">
   <h1>Lead Tracker<span>.</span></h1>
-  <div class="tag">Measure, generate emails, export CSV for Notion. Data is saved in this browser only.</div>
+  <div class="tag">Measure, email, track history, sync to Notion. All data is stored in this browser and stays here between visits.</div>
 
   <div class="stats">
     <div class="stat"><b id="s-total">0</b><span>Total leads</span></div>
@@ -80,12 +94,12 @@
     <div class="field">
       <label for="key">Google PageSpeed API key</label>
       <input id="key" type="password" placeholder="Paste your free API key (saved in this browser only)" />
-      <div class="hint">Same key as the audit tool. Get one free at <a href="https://developers.google.com/speed/docs/insights/v5/get-started" target="_blank" rel="noopener">Google Cloud</a>.</div>
+      <div class="hint">Get one free at <a href="https://developers.google.com/speed/docs/insights/v5/get-started" target="_blank" rel="noopener">Google Cloud</a>. Paste it here only, never into the box below.</div>
     </div>
     <div class="field">
       <label for="bulk">Store URLs - one per line</label>
-      <textarea id="bulk" placeholder="pinkcityprints.com, Molly, hello@pinkcityprints.com"></textarea>
-      <div class="hint">Format: <b>domain, contact name, email</b> - name and email are optional.</div>
+      <textarea id="bulk" placeholder="narahsoleigh.com, Katrin, hello@narahsoleigh.com, Narah Soleigh"></textarea>
+      <div class="hint">Format: <b>domain, contact name, email, Company Name</b>. Only the domain is required. Adding the company name here saves you fixing it later. Existing leads are updated, not duplicated.</div>
     </div>
     <div class="acts">
       <button id="run" class="btn p">Measure and add leads</button>
@@ -95,21 +109,36 @@
   </div>
 
   <div class="panel">
-    <h2>2 - Pipeline</h2>
+    <h2>2 - Pipeline and history</h2>
+    <div class="toolbar">
+      <input id="q" class="grow" type="text" placeholder="Search company, domain or email..." />
+      <select id="fstatus">
+        <option value="">All statuses</option>
+        <option value="__active">Active only (not closed)</option>
+      </select>
+      <select id="fsort">
+        <option value="added">Sort: newest first</option>
+        <option value="mobile">Sort: worst mobile score</option>
+        <option value="company">Sort: company A-Z</option>
+        <option value="followUp">Sort: follow-up due</option>
+      </select>
+      <span class="count" id="cnt"></span>
+    </div>
     <div class="tbl-wrap">
       <table>
         <thead><tr>
-          <th>Company</th><th>Mob</th><th>Desk</th><th>LCP</th><th>Email</th><th>Contact</th>
-          <th>Status</th><th>Emailed</th><th>Follow-up</th><th>Actions</th>
+          <th>Company / domain</th><th>Mob</th><th>Desk</th><th>LCP</th><th>Email</th><th>Contact</th>
+          <th>Status</th><th>Emailed</th><th>Follow-up</th><th>Notes</th><th>Actions</th>
         </tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
     <div id="empty" class="empty">No leads yet. Paste some domains above and hit <b>Measure and add leads</b>.</div>
+    <div class="hint" style="margin-top:12px">Tip: click any Company, Email, Contact or Notes cell to edit it. Use <b>Log</b> to see the full history of a lead.</div>
   </div>
 
   <div class="panel">
-    <h2>3 - Export to Notion</h2>
+    <h2>3 - Backup and export</h2>
     <div class="acts">
       <button id="csv" class="btn p">Download CSV for Notion</button>
       <button id="json" class="btn g">Backup JSON</button>
@@ -126,7 +155,6 @@
       <div class="field">
         <label for="worker">Worker URL</label>
         <input id="worker" type="text" placeholder="https://lead-notion.your-name.workers.dev" />
-        <div class="hint">Your deployed Cloudflare Worker.</div>
       </div>
       <div class="field">
         <label for="dbid">Notion Database ID</label>
@@ -136,6 +164,7 @@
     </div>
     <div class="acts">
       <button id="push" class="btn p">Push all leads to Notion</button>
+      <button id="pushFiltered" class="btn g">Push filtered only</button>
     </div>
     <div id="pst" class="status"></div>
   </div>
@@ -152,6 +181,15 @@
   </div>
 </div></dialog>
 
+<dialog id="ldlg"><div class="dlg">
+  <h3 id="ldlg-t">Lead history</h3>
+  <div class="sub" id="ldlg-s"></div>
+  <div class="logwrap" id="ldlg-b"></div>
+  <div class="acts" style="margin-top:16px">
+    <button id="lcl" class="btn g">Close</button>
+  </div>
+</div></dialog>
+
 <script>
 var NL = String.fromCharCode(10);
 var BOM = String.fromCharCode(65279);
@@ -161,17 +199,41 @@ function $(i){ return document.getElementById(i); }
 var LS='dd_leads_v1', LSK='psi_api_key', LSW='dd_worker_url', LSD='dd_notion_db';
 var leads = JSON.parse(localStorage.getItem(LS)||'[]');
 var STATUSES=['Not contacted','Emailed','Follow-up 1','Follow-up 2','Replied','Report sent','Client','Not interested'];
+var CLOSED=['Replied','Report sent','Client','Not interested'];
 var dash='-';
+var view=[];
+
+var BRANDS={
+  'pinkcityprints.com':'Pink City Prints',
+  'narahsoleigh.com':'Narah Soleigh',
+  'lawdesignstudio.com':'LAW Design Studio',
+  'wildandstone.com':'Wild & Stone',
+  'daisystreet.co.uk':'Daisy Street',
+  'seventymochi.com':'Seventy + Mochi',
+  'toolally.com':'Toolally',
+  'tillyanna.co.uk':'Tillyanna',
+  'folcland.com':'Folcland',
+  'faune.co.uk':'Faune'
+};
 
 function save(){ localStorage.setItem(LS, JSON.stringify(leads)); render(); }
 function msg(t,c){ var s=$('st'); s.className='status show '+c; s.innerHTML=t; }
 function pmsg(t,c){ var s=$('pst'); s.className='status show '+c; s.innerHTML=t; }
 function col(v){ return v==null?'':(v>=90?'gr':(v>=50?'a':'r')); }
 function today(){ return new Date().toISOString().slice(0,10); }
+function stamp(){ return new Date().toISOString().slice(0,16).replace('T',' '); }
 function addDays(d,n){ var x=new Date(d); x.setDate(x.getDate()+n); return x.toISOString().slice(0,10); }
+function esc(s){ return String(s==null?'':s).split('&').join('&').split('<').join('&lt;').split('>').join('>').split(QT).join('&quot;'); }
+
+function logAdd(l, text){
+  if(!l.log) l.log=[];
+  l.log.push({ t: stamp(), e: text });
+}
+
 function titleize(d){
-  return d.replace(/^www\./,'').replace(/\.(com|co\.uk|co|io|net|org|shop|store|london|studio|design)$/,'')
-    .split(/[-.]/).map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join(' ');
+  if(BRANDS[d]) return BRANDS[d];
+  var base=d.replace(/^www\./,'').replace(/\.(com|co\.uk|org\.uk|co|io|net|org|shop|store|london|studio|design|eu|de|fr|cz)$/,'');
+  return base.split(/[-.]/).map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join(' ');
 }
 
 function psi(url, strategy, key){
@@ -214,46 +276,100 @@ function buildEmail(l){
   return { sub: sub, body: body };
 }
 
+function buildFollowUp(l){
+  var brand=l.company;
+  var greet = l.contact ? ('Hi '+l.contact+',') : ('Hi '+brand+' team,');
+  var P = NL+NL;
+  var body = greet + P
+    + 'Just following up on the PageSpeed finding I sent over for '+brand+'.' + P
+    + 'I am still happy to prepare the free PDF report. It will show the specific image, code and app-loading issues worth addressing first - no obligation to hire me.' + P
+    + 'Would you like a copy?' + P
+    + 'Best,' + NL + 'David' + NL + 'Shopify Speed Optimization' + NL + 'davidrdobrovsky.com';
+  return { sub: 'Following up - '+brand+' mobile speed', body: body };
+}
+
+function applyFilters(){
+  var q=$('q').value.trim().toLowerCase();
+  var fs=$('fstatus').value;
+  var sort=$('fsort').value;
+  view = leads.map(function(l,i){ return {l:l, i:i}; }).filter(function(o){
+    var l=o.l;
+    if(q){
+      var hay=((l.company||'')+' '+(l.domain||'')+' '+(l.email||'')+' '+(l.contact||'')).toLowerCase();
+      if(hay.indexOf(q)<0) return false;
+    }
+    if(fs==='__active'){ if(CLOSED.indexOf(l.status)>=0) return false; }
+    else if(fs){ if(l.status!==fs) return false; }
+    return true;
+  });
+  view.sort(function(a,b){
+    var A=a.l, B=b.l;
+    if(sort==='mobile') return (A.mobile==null?999:A.mobile)-(B.mobile==null?999:B.mobile);
+    if(sort==='company') return String(A.company||'').localeCompare(String(B.company||''));
+    if(sort==='followUp') return String(A.followUp||'9999').localeCompare(String(B.followUp||'9999'));
+    return String(B.added||'').localeCompare(String(A.added||''));
+  });
+}
+
 function render(){
+  applyFilters();
   var tb=$('rows'); tb.innerHTML='';
   $('empty').style.display = leads.length ? 'none' : 'block';
-  leads.forEach(function(l,i){
+  $('cnt').textContent = 'Showing '+view.length+' of '+leads.length+' leads';
+
+  view.forEach(function(o){
+    var l=o.l, i=o.i;
     var tr=document.createElement('tr');
-    var closed = ['Replied','Report sent','Client','Not interested'].indexOf(l.status)>=0;
+    var closed = CLOSED.indexOf(l.status)>=0;
+    if(closed) tr.className='closed';
     var overdue = l.followUp && l.followUp<=today() && !closed;
     var opts='';
     STATUSES.forEach(function(s){ opts += '<option'+(s===l.status?' selected':'')+'>'+s+'</option>'; });
+    var logCount = l.log ? l.log.length : 0;
     tr.innerHTML =
-      '<td class="co">'+l.company+'<div style="font-weight:400;color:var(--muted);font-size:11px">'+l.domain+'</div></td>'+
+      '<td><input class="cell nm" value="'+esc(l.company)+'" data-f="company" data-i="'+i+'" title="Click to edit company name">'+
+        '<div class="dom">'+esc(l.domain)+'</div></td>'+
       '<td class="sc '+col(l.mobile)+'">'+(l.mobile==null?dash:l.mobile)+'</td>'+
       '<td class="sc '+col(l.desktop)+'">'+(l.desktop==null?dash:l.desktop)+'</td>'+
-      '<td>'+(l.lcp||dash)+'</td>'+
-      '<td><input value="'+(l.email||'')+'" data-f="email" data-i="'+i+'" placeholder="email" style="min-width:170px;padding:5px 8px;font-size:12px"></td>'+
-      '<td><input value="'+(l.contact||'')+'" data-f="contact" data-i="'+i+'" placeholder="name" style="min-width:90px;padding:5px 8px;font-size:12px"></td>'+
+      '<td style="white-space:nowrap">'+(l.lcp||dash)+'</td>'+
+      '<td><input class="cell" value="'+esc(l.email)+'" data-f="email" data-i="'+i+'" placeholder="email" style="min-width:165px"></td>'+
+      '<td><input class="cell" value="'+esc(l.contact)+'" data-f="contact" data-i="'+i+'" placeholder="name" style="min-width:85px"></td>'+
       '<td><select class="st" data-f="status" data-i="'+i+'">'+opts+'</select></td>'+
       '<td style="white-space:nowrap;font-size:12px">'+(l.emailedOn||dash)+'</td>'+
       '<td style="white-space:nowrap;font-size:12px;'+(overdue?'color:var(--red);font-weight:800':'')+'">'+(l.followUp||dash)+'</td>'+
+      '<td><input class="cell" value="'+esc(l.notes)+'" data-f="notes" data-i="'+i+'" placeholder="notes" style="min-width:110px"></td>'+
       '<td style="white-space:nowrap">'+
-        '<button class="mini" data-act="mail" data-i="'+i+'">Email</button> '+
-        '<button class="mini" data-act="sent" data-i="'+i+'">Mark sent</button> '+
-        '<button class="mini" data-act="del" data-i="'+i+'">x</button>'+
+        '<button class="mini" data-act="mail" data-i="'+i+'">Email</button>'+
+        '<button class="mini" data-act="follow" data-i="'+i+'">F-up</button>'+
+        '<button class="mini" data-act="sent" data-i="'+i+'">Mark sent</button>'+
+        '<button class="mini" data-act="re" data-i="'+i+'">Re-measure</button>'+
+        '<button class="mini" data-act="log" data-i="'+i+'">Log ('+logCount+')</button>'+
+        '<button class="mini dl" data-act="del" data-i="'+i+'">x</button>'+
       '</td>';
     tb.appendChild(tr);
   });
+
   $('s-total').textContent = leads.length;
   $('s-emailed').textContent = leads.filter(function(l){ return l.emailedOn; }).length;
   $('s-replied').textContent = leads.filter(function(l){ return ['Replied','Report sent','Client'].indexOf(l.status)>=0; }).length;
   $('s-due').textContent = leads.filter(function(l){
-    return l.followUp && l.followUp<=today() && ['Replied','Report sent','Client','Not interested'].indexOf(l.status)<0; }).length;
+    return l.followUp && l.followUp<=today() && CLOSED.indexOf(l.status)<0; }).length;
   $('s-clients').textContent = leads.filter(function(l){ return l.status==='Client'; }).length;
 }
 
 $('rows').addEventListener('change', function(e){
   var f=e.target.dataset.f, i=e.target.dataset.i;
   if(!f) return;
-  leads[i][f]=e.target.value;
-  if(f==='status' && e.target.value==='Emailed' && !leads[i].emailedOn){
-    leads[i].emailedOn=today(); leads[i].followUp=addDays(today(),4);
+  var l=leads[i];
+  var old=l[f]||'';
+  var val=e.target.value;
+  l[f]=val;
+  if(f==='status'){
+    logAdd(l,'Status changed: '+(old||'-')+' -> '+val);
+    if(val==='Emailed' && !l.emailedOn){ l.emailedOn=today(); l.followUp=addDays(today(),4); }
+    if(CLOSED.indexOf(val)>=0){ l.followUp=''; }
+  } else if(old!==val){
+    logAdd(l, f.charAt(0).toUpperCase()+f.slice(1)+' updated');
   }
   save();
 });
@@ -262,20 +378,60 @@ $('rows').addEventListener('click', function(e){
   var act=e.target.dataset.act, i=e.target.dataset.i;
   if(!act) return;
   var l=leads[i];
-  if(act==='del'){ if(confirm('Remove '+l.company+'?')){ leads.splice(i,1); save(); } return; }
-  if(act==='sent'){
-    l.status = (l.status==='Emailed') ? 'Follow-up 1' : 'Emailed';
-    l.emailedOn=today(); l.followUp=addDays(today(),4); save(); return;
+
+  if(act==='del'){
+    if(confirm('Remove '+l.company+' from your list?')){ leads.splice(i,1); save(); }
+    return;
   }
-  if(act==='mail'){
+  if(act==='sent'){
+    l.status = (l.status==='Emailed') ? 'Follow-up 1' : ((l.status==='Follow-up 1') ? 'Follow-up 2' : 'Emailed');
+    l.emailedOn=today(); l.followUp=addDays(today(),4);
+    logAdd(l,'Marked sent ('+l.status+')');
+    save(); return;
+  }
+  if(act==='re'){
+    var key=$('key').value.trim();
+    var btn=e.target; btn.disabled=true; btn.textContent='...';
+    Promise.all([psi('https://'+l.domain,'mobile',key), psi('https://'+l.domain,'desktop',key)])
+      .then(function(res){
+        var m=res[0], d=res[1];
+        var before=l.mobile;
+        l.mobile=m.score; l.desktop=d.score; l.lcp=m.lcp; l.lcpMs=m.lcpMs; l.fcp=m.fcp;
+        l.tbt=m.tbt; l.tbtMs=m.tbtMs; l.cls=m.cls; l.si=m.si; l.bytes=m.bytes; l.measuredOn=today();
+        logAdd(l,'Re-measured: mobile '+(before==null?dash:before)+' -> '+m.score+', desktop '+d.score);
+        save();
+      })
+      .catch(function(err){ alert('Re-measure failed: '+(err.message||'error')); btn.disabled=false; btn.textContent='Re-measure'; });
+    return;
+  }
+  if(act==='log'){
+    $('ldlg-t').textContent='History - '+l.company;
+    var bits=[];
+    bits.push('Domain: '+l.domain);
+    if(l.measuredOn) bits.push('Last measured: '+l.measuredOn);
+    bits.push('Status: '+l.status);
+    $('ldlg-s').textContent=bits.join('  |  ');
+    var html='';
+    var log=(l.log||[]).slice().reverse();
+    if(!log.length){ html='<div class="empty">No history entries yet.</div>'; }
+    log.forEach(function(en){
+      html += '<div class="logitem"><span class="when">'+esc(en.t)+'</span><span class="what">'+esc(en.e)+'</span></div>';
+    });
+    $('ldlg-b').innerHTML=html;
+    $('ldlg').showModal();
+    return;
+  }
+  if(act==='mail' || act==='follow'){
     if(l.mobile==null){ alert('Measure this lead first so the email can include real numbers.'); return; }
-    var r=buildEmail(l);
-    $('dlg-t').textContent='Email draft - '+l.company;
-    $('dlg-s').innerHTML='<b>To:</b> '+(l.email||'(add an email)')+' &nbsp;|&nbsp; <b>Subject:</b> '+r.sub;
+    var r = (act==='follow') ? buildFollowUp(l) : buildEmail(l);
+    $('dlg-t').textContent=(act==='follow'?'Follow-up draft - ':'Email draft - ')+l.company;
+    $('dlg-s').innerHTML='<b>To:</b> '+esc(l.email||'(add an email)')+' &nbsp;|&nbsp; <b>Subject:</b> '+esc(r.sub);
     $('dlg-b').textContent=r.body;
     $('cp').onclick=function(){
       navigator.clipboard.writeText(r.body);
       $('cp').textContent='Copied!';
+      logAdd(l,(act==='follow'?'Follow-up':'Email')+' draft copied');
+      save();
       setTimeout(function(){ $('cp').textContent='Copy to clipboard'; },1500);
     };
     $('mailto').onclick=function(){
@@ -286,12 +442,25 @@ $('rows').addEventListener('click', function(e){
 });
 
 $('cl').onclick=function(){ $('dlg').close(); };
+$('lcl').onclick=function(){ $('ldlg').close(); };
+$('q').addEventListener('input', render);
+$('fstatus').addEventListener('change', render);
+$('fsort').addEventListener('change', render);
+
+STATUSES.forEach(function(s){
+  var o=document.createElement('option'); o.value=s; o.textContent=s; $('fstatus').appendChild(o);
+});
 
 $('addBlank').onclick=function(){
   var d=prompt('Domain (e.g. example.com)');
   if(!d) return;
-  var dom=d.trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
-  leads.push({ domain:dom, company:titleize(dom), status:'Not contacted', added:today() });
+  var dom=d.trim().replace(/^https?:\/\//,'').replace(/\/$/,'').replace(/^www\./,'');
+  var exists=null;
+  for(var k=0;k<leads.length;k++){ if(leads[k].domain===dom){ exists=leads[k]; break; } }
+  if(exists){ alert('That domain is already in your list ('+exists.company+').'); return; }
+  var rec={ domain:dom, company:titleize(dom), status:'Not contacted', added:today() };
+  logAdd(rec,'Lead added manually');
+  leads.push(rec);
   save();
 };
 
@@ -307,32 +476,47 @@ $('run').onclick=function(){
     if(n>=lines.length){
       btn.disabled=false;
       var t='Measured '+ok+' of '+lines.length+'.';
-      t += fail.length ? (' Failed: '+fail.join('; ')) : ' Now add emails, then use the Email button per lead.';
+      t += fail.length ? (' Failed: '+fail.join('; ')) : ' Now review emails and send.';
       msg(t, fail.length?'e':'o');
       if(ok) $('bulk').value='';
       return;
     }
     var parts=lines[n].split(',').map(function(s){ return (s||'').trim(); });
-    var domain=parts[0].replace(/^https?:\/\//,'').replace(/\/$/,'');
-    msg('<span class="spin"></span> Measuring '+(n+1)+'/'+lines.length+': <b>'+domain+'</b> ... (20-40s each)','i');
+    var domain=parts[0].replace(/^https?:\/\//,'').replace(/\/$/,'').replace(/^www\./,'');
+
+    if(/AIza/i.test(domain) || domain.indexOf('.')<0 || domain.length>70){
+      fail.push(domain.slice(0,25)+'... (not a valid domain - did your API key get pasted here?)');
+      n++; step(); return;
+    }
+
+    msg('<span class="spin"></span> Measuring '+(n+1)+'/'+lines.length+': <b>'+esc(domain)+'</b> ... (20-40s each)','i');
     var rec=null;
     for(var k=0;k<leads.length;k++){ if(leads[k].domain===domain){ rec=leads[k]; break; } }
-    if(!rec){ rec={ domain:domain, company:titleize(domain), status:'Not contacted', added:today() }; leads.push(rec); }
+    var isNew=false;
+    if(!rec){
+      rec={ domain:domain, company:(parts[3]||titleize(domain)), status:'Not contacted', added:today() };
+      logAdd(rec,'Lead added');
+      leads.push(rec); isNew=true;
+    }
     if(parts[1]) rec.contact=parts[1];
     if(parts[2]) rec.email=parts[2];
-    var url='https://'+domain;
+    if(parts[3]) rec.company=parts[3];
 
-    Promise.all([psi(url,'mobile',key), psi(url,'desktop',key)]).then(function(res){
+    Promise.all([psi('https://'+domain,'mobile',key), psi('https://'+domain,'desktop',key)]).then(function(res){
       var m=res[0], d=res[1];
+      var before=rec.mobile;
       rec.mobile=m.score; rec.desktop=d.score; rec.lcp=m.lcp; rec.lcpMs=m.lcpMs; rec.fcp=m.fcp;
       rec.tbt=m.tbt; rec.tbtMs=m.tbtMs; rec.cls=m.cls; rec.si=m.si; rec.bytes=m.bytes;
       rec.measuredOn=today();
+      logAdd(rec, isNew ? ('Measured: mobile '+m.score+', desktop '+d.score)
+                        : ('Re-measured: mobile '+(before==null?dash:before)+' -> '+m.score+', desktop '+d.score));
       ok++;
     }).catch(function(err){
       var t=err.message||'error';
       if(/quota|429/i.test(t)) t='rate limit - add your free API key';
       if(/API_KEY_INVALID|not valid/i.test(t)) t='invalid API key';
       fail.push(domain+' ('+t+')');
+      logAdd(rec,'Measurement failed: '+t);
     }).then(function(){
       save(); n++; step();
     });
@@ -348,17 +532,14 @@ var CSV_COLS=[['Company','company'],['Website','domain'],['Contact name','contac
 
 $('csv').onclick=function(){
   if(!leads.length){ alert('No leads to export.'); return; }
-  function esc(v){
+  function q(v){
     v = (v==null) ? '' : String(v);
     var needs = (v.indexOf(',')>=0) || (v.indexOf(QT)>=0) || (v.indexOf(NL)>=0);
     return needs ? (QT + v.split(QT).join(QT+QT) + QT) : v;
   }
   var head = CSV_COLS.map(function(c){ return c[0]; }).join(',');
-  var body = leads.map(function(l){
-    return CSV_COLS.map(function(c){ return esc(l[c[1]]); }).join(',');
-  });
-  var csv = [head].concat(body).join(NL);
-  dl(new Blob([BOM+csv],{type:'text/csv;charset=utf-8'}), 'leads-'+today()+'.csv');
+  var body = leads.map(function(l){ return CSV_COLS.map(function(c){ return q(l[c[1]]); }).join(','); });
+  dl(new Blob([BOM+[head].concat(body).join(NL)],{type:'text/csv;charset=utf-8'}), 'leads-'+today()+'.csv');
 };
 
 $('json').onclick=function(){
@@ -378,7 +559,7 @@ $('imp').onchange=function(e){
 };
 
 $('clear').onclick=function(){
-  if(confirm('Delete ALL leads? Export a backup first.')){ leads=[]; save(); }
+  if(confirm('Delete ALL leads and their history? Export a backup first.')){ leads=[]; save(); }
 };
 
 function dl(blob,name){
@@ -389,25 +570,27 @@ function dl(blob,name){
 $('worker').value=localStorage.getItem(LSW)||'';
 $('dbid').value=localStorage.getItem(LSD)||'';
 
-$('push').onclick=function(){
+function doPush(list){
   var url=$('worker').value.trim().replace(/\/$/,'');
   var db=$('dbid').value.trim();
   if(!url||!db){ pmsg('Enter both your Worker URL and Notion Database ID.','e'); return; }
   localStorage.setItem(LSW,url); localStorage.setItem(LSD,db);
-  if(!leads.length){ pmsg('No leads to push.','e'); return; }
-  var btn=$('push'); btn.disabled=true;
+  if(!list.length){ pmsg('Nothing to push.','e'); return; }
+  var btnA=$('push'), btnB=$('pushFiltered');
+  btnA.disabled=true; btnB.disabled=true;
   var ok=0, fail=[], i=0;
 
   function step(){
-    if(i>=leads.length){
-      btn.disabled=false;
-      var t='Pushed '+ok+'/'+leads.length+' to Notion.';
+    if(i>=list.length){
+      btnA.disabled=false; btnB.disabled=false;
+      var t='Pushed '+ok+'/'+list.length+' to Notion.';
       t += fail.length ? (' Failed: '+fail.join('; ')) : ' Open Notion to confirm.';
       pmsg(t, fail.length?'e':'o');
+      save();
       return;
     }
-    var l=leads[i];
-    pmsg('<span class="spin"></span> Pushing '+(i+1)+'/'+leads.length+': <b>'+l.company+'</b> ...','i');
+    var l=list[i];
+    pmsg('<span class="spin"></span> Pushing '+(i+1)+'/'+list.length+': <b>'+esc(l.company)+'</b> ...','i');
     fetch(url,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -415,7 +598,7 @@ $('push').onclick=function(){
     }).then(function(r){
       return r.json().catch(function(){ return {}; }).then(function(d){
         if(!r.ok || d.ok===false) throw new Error(d.error||('HTTP '+r.status));
-        ok++;
+        ok++; logAdd(l,'Synced to Notion');
       });
     }).catch(function(e){
       fail.push(l.company+' ('+(e.message||'error')+')');
@@ -424,7 +607,10 @@ $('push').onclick=function(){
     });
   }
   step();
-};
+}
+
+$('push').onclick=function(){ doPush(leads.slice()); };
+$('pushFiltered').onclick=function(){ doPush(view.map(function(o){ return o.l; })); };
 
 render();
 </script>
