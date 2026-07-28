@@ -108,9 +108,37 @@
     .doc .d-row .p { font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; }
     .doc .d-row .p.bad { background:#fee2e2; color:#dc2626; } .doc .d-row .p.good { background:#dcfce7; color:#16a34a; }
     .doc .d-pdf { display:inline-flex; align-items:center; gap:6px; margin-top:16px; background:#0f172a; color:#fff; font-size:11px; font-weight:700; padding:7px 13px; border-radius:999px; }
+     /* ---------- Bonuses ---------- */
+    .bonus-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+    .bonus { display:flex; gap:16px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; transition:border-color .2s ease, transform .2s ease; }
+    .bonus:hover { border-color:var(--accent); transform:translateY(-3px); }
+    .bonus .bi { flex:0 0 44px; height:44px; border-radius:12px; background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.3); display:grid; place-items:center; font-size:20px; }
+    .bonus h3 { font-size:17px; margin-bottom:5px; }
+    .bonus p { color:var(--muted); font-size:14.5px; }
+    .bonus .tagv { display:inline-block; margin-top:9px; font-size:11px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--accent); background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); padding:3px 9px; border-radius:999px; }
+    /* ---------- Capacity ---------- */
+    .capacity { display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; background:rgba(34,197,94,.07); border:1px solid rgba(34,197,94,.3); border-radius:999px; padding:13px 26px; max-width:660px; margin:0 auto 40px; text-align:center; }
+    .capacity .dot { width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px rgba(34,197,94,.2); flex:0 0 auto; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+    .capacity .ct { font-size:15px; color:var(--text); font-weight:600; }
+    .capacity .ct b { color:var(--accent); font-weight:900; }
+    /* ---------- Founding offer ---------- */
+    .founding { display:inline-flex; align-self:flex-start; align-items:center; gap:8px; background:var(--accent); color:#04120a; font-size:11.5px; font-weight:900; letter-spacing:.5px; padding:5px 12px; border-radius:999px; text-transform:uppercase; margin-bottom:12px; }
+    .was { color:var(--muted); text-decoration:line-through; font-size:22px; font-weight:600; margin-right:8px; }
+    .fnote { font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.5; }
+    /* ---------- Payment trust note ---------- */
+    .paynote { max-width:600px; margin:18px auto 0; background:var(--bg-soft); border:1px solid var(--border); border-radius:14px; padding:18px 22px; text-align:left; }
+    .paynote .ph { display:flex; align-items:center; gap:9px; font-size:14px; font-weight:800; color:var(--text); margin-bottom:7px; }
+    .paynote p { color:var(--muted); font-size:13.5px; margin:0; }
+    .paynote a.fv { color:var(--accent); font-weight:700; text-decoration:underline; }
+    
     @media (max-width:860px) {
+            .bonus-grid { grid-template-columns:1fr; }
+      .capacity { border-radius:16px; }
+
       .grid-3,.pricing,.steps { grid-template-columns:1fr; } .ba-wrap { grid-template-columns:1fr; } .ba-arrow { transform:rotate(90deg); } .nav-links { display:none; }
       .lead { grid-template-columns:1fr; padding:30px; gap:32px; } .doc { transform:none; }
+      
     }
   </style>
 </head>
@@ -122,6 +150,7 @@
         <a class="link" href="#problem">Why speed</a>
         <a class="link" href="#results">Results</a>
         <a class="link" href="#free-report">Free report</a>
+        <a class="link" href="#bonuses">Included</a>
         <a class="link" href="#pricing">Pricing</a>
         <a class="btn btn-primary" href="#free-report">Free report</a>
       </nav>
@@ -216,6 +245,50 @@
       </div>
     </div>
   </section>
+            <section class="block" id="bonuses">
+    <div class="container">
+      <div class="section-head">
+        <div class="eyebrow">Included with every optimization</div>
+        <h2>More than a one-off fix</h2>
+        <p>Most speed services optimize once and disappear. These extras are included at no cost — so your store stays fast.</p>
+      </div>
+      <div class="bonus-grid">
+        <div class="bonus">
+          <div class="bi">🔄</div>
+          <div>
+            <h3>30-day re-check</h3>
+            <p>A month after the work is done, I re-test your store and send you an updated report — so you can see the improvement held.</p>
+            <span class="tagv">Included</span>
+          </div>
+        </div>
+        <div class="bonus">
+          <div class="bi">📱</div>
+          <div>
+            <h3>App &amp; bloat audit</h3>
+            <p>A clear list of the apps slowing your store down, including any you may be paying for but no longer using.</p>
+            <span class="tagv">Included</span>
+          </div>
+        </div>
+        <div class="bonus">
+          <div class="bi">▪</div>
+          <div>
+            <h3>"Keep it fast" checklist</h3>
+            <p>A short practical guide: how to add images, themes and apps in future without undoing the gains.</p>
+            <span class="tagv">Included</span>
+          </div>
+        </div>
+        <div class="bonus">
+          <div class="bi">!</div>
+          <div>
+            <h3>14-day fix guarantee</h3>
+            <p>If speed drops within 14 days because of something I changed, I fix it free. No questions, no invoice.</p>
+            <span class="tagv">Included</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="block" id="pricing">
     <div class="container">
       <div class="section-head">
@@ -223,6 +296,11 @@
         <h2>Simple, fixed pricing</h2>
         <p>Pick a package. No hourly billing, no surprises — you know exactly what you get.</p>
       </div>
+            <div class="capacity">
+        <span class="dot"></span>
+        <span class="ct">I take on <b>3 new stores per week</b> to keep quality high &mdash; <b>2 slots left</b> this week.</span>
+      </div>
+
       <div class="pricing">
         <div class="price-card">
           <h3>Speed Audit</h3><div class="amount">$79</div>
@@ -231,11 +309,15 @@
           <a class="btn btn-ghost" href="#free-report">Choose Audit</a>
         </div>
         <div class="price-card featured">
-          <div class="price-tag">MOST POPULAR</div>
-          <h3>Speed Boost</h3><div class="amount">$249</div>
+                    <div class="price-tag">MOST POPULAR</div>
+          <span class="founding">Founding client rate</span>
+          <h3>Speed Boost</h3>
+          <div class="amount"><span class="was">$249</span>$199</div>
           <p class="muted">Full optimization to make your store genuinely fast.</p>
           <ul><li>Everything in Audit</li><li>Image optimization & resizing</li><li>Code & script optimization</li><li>Before/After report with real numbers</li><li>7 days of support</li></ul>
-          <a class="btn btn-primary" href="https://www.fiverr.com/david_dobrovsky/optimize-and-boost-your-shopify-store-speed/" target="_blank" rel="noopener">Choose Boost</a>
+          <a class="btn btn-primary" href="#free-report">Choose Boost</a>
+          <div class="fnote">Available to my first 5 clients, in exchange for an honest review once the work is done. 3 spots remaining.</div>
+
         </div>
         <div class="price-card">
           <h3>Full Optimization</h3><div class="amount">$549</div>
@@ -268,12 +350,18 @@
   </section>
   <section class="block" id="contact">
     <div class="container">
-      <div class="final-cta">
-        <h2>Let's make your store fly →</h2>
+            <h2>Let's make your store fly →</h2>
         <p>Send me your store URL for a free, no-obligation speed assessment. I'll reply fast.</p>
         <div class="hero-cta" style="justify-content:center;">
-          <a class="btn btn-primary" href="https://www.fiverr.com/david_dobrovsky/optimize-and-boost-your-shopify-store-speed/" target="_blank" rel="noopener">Order on Fiverr →</a>
+          <a class="btn btn-primary" href="#free-report">Get my free speed report &rarr;</a>
           <a class="btn btn-ghost" href="mailto:tech@davidrdobrovsky.com">Email me</a>
+        </div>
+        <div class="paynote">
+          <div class="ph">🔒 Two ways to pay &mdash; whichever you trust more</div>
+          <p>Pay me directly by invoice, or order through
+            <a class="fv" href="https://www.fiverr.com/david_dobrovsky/optimize-and-boost-your-shopify-store-speed/" target="_blank" rel="noopener">my Fiverr profile</a>,
+            where your payment is held safely in escrow and only released once you're happy with the work.
+            The price is the same either way &mdash; Fiverr simply costs me more, and I'd rather you feel comfortable.</p>
         </div>
       </div>
     </div>
