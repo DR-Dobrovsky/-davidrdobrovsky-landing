@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speed Audit Generator · David Dobrovský</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink:#0f172a; --body:#334155; --muted:#64748b; --line:#e2e8f0;
+      --bg:#f8fafc; --white:#fff; --accent:#16a34a; --accent-2:#15803d;
+      --red:#dc2626; --red-soft:#fee2e2; --amber:#d97706; --amber-soft:#fef3c7;
+      --green:#16a34a; --green-soft:#dcfce7;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--body); background:var(--bg); line-height:1.65; -webkit-font-smoothing:antialiased; }
+    h1,h2,h3 { color:var(--ink); line-height:1.25; }
+    .accent { color:var(--accent); }
+    strong { color:var(--ink); }
+    a { color:var(--accent); }
+
+    /* ===== Control panel (screen only) ===== */
+    .panel { max-width:820px; margin:24px auto 0; background:var(--white); border:1px solid var(--line); border-radius:16px; box-shadow:0 4px 24px rgba(15,23,42,.06); padding:26px 30px; }
+    .panel h1 { font-size:22px; font-weight:900; letter-spacing:-.5px; }
+    .panel h1 span { color:var(--accent); }
+    .panel .tagline { color:var(--muted); font-size:14px; margin-bottom:18px; }
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-size:13px; font-weight:700; color:var(--ink); margin-bottom:5px; }
+    .field input { width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:9px; font-size:15px; font-family:inherit; color:var(--ink); }
+    .field input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(22,163,74,.12); }
+    .field .hint { font-size:12px; color:var(--muted); margin-top:4px; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .keyrow { display:flex; gap:8px; align-items:flex-end; }
+    .keyrow .field { flex:1; margin-bottom:0; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 22px; border-radius:999px; font-weight:800; font-size:15px; cursor:pointer; border:1px solid transparent; font-family:inherit; }
+    .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#04120a; }
+    .btn-primary:hover { filter:brightness(1.05); }
+    .btn-primary:disabled { opacity:.55; cursor:not-allowed; filter:none; }
+    .btn-ghost { background:#fff; border-color:var(--line); color:var(--ink); }
+    .btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
+    .actions { display:flex; gap:12px; margin-top:18px; flex-wrap:wrap; align-items:center; }
+    .status { font-size:14px; margin-top:14px; padding:12px 14px; border-radius:9px; display:none; }
+    .status.show { display:block; }
+    .status.info { background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }
+    .status.err { background:var(--red-soft); color:var(--red); border:1px solid #fecaca; }
+    .status.ok { background:var(--green-soft); color:var(--green); border:1px solid #bbf7d0; }
+    .spinner { width:15px; height:15px; border:2px solid rgba(4,18,10,.3); border-top-color:#04120a; border-radius:50%; display:inline-block; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ===== Report ===== */
+    #report { display:none; }
+    .page { max-width:820px; margin:24px auto; background:var(--white); box-shadow:0 4px 24px rgba(15,23,42,.08); }
+    .pad { padding:48px 56px; }
+    .rpt-head { border-bottom:3px solid var(--accent); padding-bottom:26px; }
+    .brand { font-size:22px; font-weight:900; color:var(--ink); letter-spacing:-.5px; }
+    .brand span { color:var(--accent); }
+    .brand-sub { color:var(--muted); font-size:13px; font-weight:500; }
+    .rpt-title { font-size:34px; font-weight:900; letter-spacing:-1px; margin-top:22px; }
+    .rpt-meta { display:flex; flex-wrap:wrap; gap:8px 36px; margin-top:16px; font-size:14px; }
+    .rpt-meta div span { display:block; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.6px; }
+    .rpt-meta div b { color:var(--ink); font-size:15px; }
+    section.blk { margin-top:38px; }
+    .eyebrow { color:var(--accent); font-weight:800; font-size:12px; letter-spacing:1.4px; text-transform:uppercase; }
+    h2.sec { font-size:21px; font-weight:800; margin:4px 0 14px; }
+    .blk p { margin-bottom:12px; }
+    .scores { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:8px; }
+    .score-box { border:1px solid var(--line); border-radius:12px; padding:22px; text-align:center; }
+    .score-box .dev { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:10px; }
+    .score-ring { font-size:54px; font-weight:900; line-height:1; }
+    .s-red { color:var(--red); } .s-amber { color:var(--amber); } .s-green { color:var(--green); }
+    .score-box .cap { font-size:12px; color:var(--muted); margin-top:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:16px; font-size:14px; }
+    th,td { text-align:left; padding:11px 12px; border-bottom:1px solid var(--line); }
+    th { font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); }
+    td.metric { font-weight:600; color:var(--ink); }
+    .pill { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+    .pill.bad { background:var(--red-soft); color:var(--red); }
+    .pill.ok { background:var(--amber-soft); color:var(--amber); }
+    .pill.good { background:var(--green-soft); color:var(--green); }
+    .issue { border:1px solid var(--line); border-left:4px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:14px; }
+    .issue.high { border-left-color:var(--red); }
+    .issue.med { border-left-color:var(--amber); }
+    .issue.low { border-left-color:var(--green); }
+    .issue-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .issue-head h3 { font-size:16px; }
+    .sev { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; padding:2px 9px; border-radius:999px; }
+    .sev.high { background:var(--red-soft); color:var(--red); }
+    .sev.med { background:var(--amber-soft); color:var(--amber); }
+    .sev.low { background:var(--green-soft); color:var(--green); }
+    .issue p { font-size:14px; margin:0; }
+    .issue .impact { font-size:13px; color:var(--muted); margin-top:6px; }
+    ul.recs { list-style:none; margin-top:8px; }
+    ul.recs li { padding:9px 0 9px 30px; position:relative; border-bottom:1px solid var(--line); font-size:14px; }
+    ul.recs li::before { content:"\2713"; position:absolute; left:0; top:9px; color:var(--accent); font-weight:900; }
+    .expected { display:grid; grid-template-columns:1fr auto 1fr; gap:16px; align-items:center; background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:24px; margin-top:8px; }
+    .exp-col { text-align:center; }
+    .exp-col .lbl { font-size:12px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:8px; }
+    .exp-col .val { font-size:46px; font-weight:900; line-height:1; }
+    .exp-arrow { font-size:28px; color:var(--accent); font-weight:900; }
+    .cta { background:var(--ink); color:#e2e8f0; border-radius:14px; padding:30px 32px; margin-top:8px; }
+    .cta h3 { color:#fff; font-size:20px; margin-bottom:6px; }
+    .cta .price { font-size:34px; font-weight:900; color:#fff; margin:8px 0; }
+    .cta .price small { font-size:14px; color:#94a3b8; font-weight:500; }
+    .cta a.order { display:inline-block; margin-top:12px; background:var(--accent); color:#04120a; font-weight:800; padding:12px 24px; border-radius:999px; text-decoration:none; }
+    .cta .contact { margin-top:14px; font-size:13px; color:#94a3b8; }
+    .cta .contact a { color:#86efac; }
+    footer.rpt { border-top:1px solid var(--line); margin-top:40px; padding-top:18px; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+
+    @media (max-width:640px) {
+      .pad { padding:30px 22px; } .row { grid-template-columns:1fr; }
+      .scores,.expected { grid-template-columns:1fr; } .exp-arrow { transform:rotate(90deg); }
+    }
+    @media print {
+      body { background:#fff; }
+      .panel, .noprint { display:none !important; }
+      #report { display:block !important; }
+      .page { box-shadow:none; margin:0; max-width:100%; }
+      .pad { padding:24px 28px; }
+      .cta { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      section.blk { page-break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= CONTROL PANEL ================= -->
+  <div class="panel noprint">
+    <h1>Speed Audit Generator<span>.</span></h1>
+    <div class="tagline">Enter a store URL &rarr; auto-generate a branded audit report &rarr; save as PDF.</div>
+
+    <div class="row">
+      <div class="field">
+        <label for="client">Client / store name</label>
+        <input id="client" type="text" placeholder="e.g. Bright Candle Co." />
+      </div>
+      <div class="field">
+        <label for="url">Store URL</label>
+        <input id="url" type="text" placeholder="https://example.myshopify.com" />
+      </div>
+    </div>
+
+    <div class="keyrow">
+      <div class="field">
+        <label for="apikey">Google PageSpeed API key</label>
+        <input id="apikey" type="password" placeholder="Paste your free API key (saved in this browser only)" />
+        <div class="hint">Saved locally in your browser (localStorage) &mdash; never stored in the file. <a href="https://developers.google.com/speed/docs/insights/v5/get-started" target="_blank" rel="noopener">Get a free key &rarr;</a></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="run" class="btn btn-primary">Analyze &amp; generate report</button>
+      <button id="pdf" class="btn btn-ghost" style="display:none;">Save as PDF</button>
+    </div>
+    <div id="status" class="status"></div>
+  </div>
+
+  <!-- ================= REPORT (populated by JS) ================= -->
+  <div id="report">
+    <div class="page">
+      <div class="pad">
+        <div class="rpt-head">
+          <div class="brand">David Dobrovský<span>.</span></div>
+          <div class="brand-sub">Shopify Speed Optimization</div>
+          <div class="rpt-title">Website Speed Audit Report</div>
+          <div class="rpt-meta">
+            <div><span>Prepared for</span><b id="r-client">&mdash;</b></div>
+            <div><span>Store URL</span><b id="r-url">&mdash;</b></div>
+            <div><span>Date</span><b id="r-date">&mdash;</b></div>
+            <div><span>Prepared by</span><b>David Dobrovský</b></div>
+          </div>
+        </div>
+
+        <section class="blk">
+          <div class="eyebrow">01 · Executive summary</div>
+          <h2 class="sec">The short version</h2>
+          <div id="r-summary"></div>
+        </section>
+
+        <section class="blk">
+          <div class="eyebrow">02 · Current performance</div>
+          <h2 class="sec">Where the store stands today</h2>
+          <div class="scores">
+            <div class="score-box">
+              <div class="dev">Mobile</div>
+              <div class="score-ring" id="r-mob-score">&mdash;</div>
+              <div class="cap">Google PageSpeed score</div>
+            </div>
+            <div class="score-box">
+              <div class="dev">Desktop</div>
+              <div class="score-ring" id="r-desk-score">&mdash;</div>
+              <div class="cap">Google PageSpeed score</div>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Core Web Vital (mobile)</th><th>Result</th><th>Google target</th><th>Status</th></tr></thead>
+            <tbody id="r-metrics"></tbody>
+          </table>
+        </section>
+
+        <section class="blk">
+          <div class="eyebrow">03 · What's slowing it down</div>
+          <h2 class="sec">Key issues found</h2>
+          <div id="r-issues"></div>
+        </section>
+
+        <section class="blk">
+          <div class="eyebrow">04 · The plan</div>
+          <h2 class="sec">What I'll optimize</h2>
+          <ul class="recs" id="r-recs"></ul>
+        </section>
+
+        <section class="blk">
+          <div class="eyebrow">05 · Expected results</div>
+          <h2 class="sec">Where we can get the mobile score</h2>
+          <div class="expected">
+            <div class="exp-col"><div class="lbl">Now · Mobile</div><div class="val" id="r-exp-now">&mdash;</div></div>
+            <div class="exp-arrow">&rarr;</div>
+            <div class="exp-col"><div class="lbl">Target · Mobile</div><div class="val s-green" id="r-exp-target">90+</div></div>
+          </div>
+          <p style="margin-top:14px; font-size:13px; color:var(--muted);">Estimates based on the issues above. Exact results depend on theme and third-party apps, but a measurable improvement is guaranteed &mdash; or your money back.</p>
+        </section>
+
+        <section class="blk">
+          <div class="eyebrow">06 · Next steps</div>
+          <h2 class="sec">Investment</h2>
+          <div class="cta">
+            <h3 id="r-pkg-name">Recommended package</h3>
+            <div class="price" id="r-pkg-price"></div>
+            <p style="color:#cbd5e1; font-size:14px; margin:0;" id="r-pkg-desc"></p>
+            <a class="order" href="https://www.fiverr.com/david_dobrovsky/optimize-and-boost-your-shopify-store-speed/" target="_blank" rel="noopener">Order on Fiverr &rarr;</a>
+            <div class="contact">Questions? Email me at <a href="mailto:tech@davidrdobrovsky.com">tech@davidrdobrovsky.com</a></div>
+          </div>
+        </section>
+
+        <footer class="rpt">
+          <div>David Dobrovský · Shopify Speed Optimization</div>
+          <div>davidrdobrovsky.com · tech@davidrdobrovsky.com</div>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const KEY_STORE = 'psi_api_key';
+
+    // Restore saved API key
+    $('apikey').value = localStorage.getItem(KEY_STORE) || '';
+
+    function setStatus(msg, type) {
+      const s = $('status');
+      s.className = 'status show ' + type;
+      s.innerHTML = msg;
+    }
+
+    function scoreColor(v) { return v >= 90 ? 's-green' : v >= 50 ? 's-amber' : 's-red'; }
+
+    // Core Web Vitals thresholds (mobile). Returns {label, cls}
+    function statusFor(metric, num) {
+      const t = {
+        lcp:   [2500, 4000],   // ms
+        si:    [3400, 5800],   // ms
+        fcp:   [1800, 3000],   // ms
+        tbt:   [200, 600],     // ms
+        cls:   [0.1, 0.25]     // unitless
+      }[metric];
+      if (num <= t[0]) return { label: 'Good', cls: 'good' };
+      if (num <= t[1]) return { label: 'Needs improvement', cls: 'ok' };
+      return { label: 'Poor', cls: 'bad' };
+    }
+
+    async function fetchPSI(url, strategy, key) {
+      const api = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed'
+        + '?url=' + encodeURIComponent(url)
+        + '&strategy=' + strategy
+        + '&category=performance'
+        + (key ? '&key=' + encodeURIComponent(key) : '');
+      const res = await fetch(api);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message || ('HTTP ' + res.status));
+      return data.lighthouseResult;
+    }
+
+    function extract(lr) {
+      const a = lr.audits;
+      const m = id => ({ display: a[id].displayValue, num: a[id].numericValue });
+      return {
+        score: Math.round(lr.categories.performance.score * 100),
+        finalUrl: lr.finalDisplayedUrl || lr.requestedUrl || '',
+        lcp: m('largest-contentful-paint'),
+        fcp: m('first-contentful-paint'),
+        tbt: m('total-blocking-time'),
+        cls: m('cumulative-layout-shift'),
+        si:  m('speed-index')
+      };
+    }
+
+    function buildSummary(client, mob, desk) {
+      const name = client ? client : 'This store';
+      const lcpSec = (mob.lcp.num / 1000).toFixed(1);
+      const bits = [];
+      // Paragraph 1 — situation
+      let p1;
+      if (desk.score >= 90 && mob.score < 90) {
+        p1 = `<p><strong>${name}</strong> performs well on desktop (score ${desk.score}), but is <strong>slower on mobile (score ${mob.score})</strong> &mdash; and mobile is where most shoppers browse. The main bottleneck is a Largest Contentful Paint of <strong>${lcpSec}s</strong> on mobile (Google recommends under 2.5s).</p>`;
+      } else if (mob.score < 50) {
+        p1 = `<p><strong>${name}</strong> is currently <strong>slow on mobile (score ${mob.score})</strong>, which is likely costing you sales every day. Shoppers often leave before the page finishes loading &mdash; the largest content takes <strong>${lcpSec}s</strong> to appear (Google's target is under 2.5s).</p>`;
+      } else {
+        p1 = `<p><strong>${name}</strong> has a mobile PageSpeed score of <strong>${mob.score}</strong> and desktop ${desk.score}. There's clear room to improve the mobile experience, starting with a Largest Contentful Paint of <strong>${lcpSec}s</strong> (Google recommends under 2.5s).</p>`;
+      }
+      // Paragraph 2 — opportunity
+      const target = mob.score >= 90 ? 95 : '90+';
+      const p2 = `<p>The good news: these are <strong>fixable issues</strong>. With targeted optimization, the mobile score can realistically move from <strong>${mob.score}</strong> toward <strong>${target}</strong>, giving shoppers a faster experience and supporting conversions and search ranking.</p>`;
+      return p1 + p2;
+    }
+
+    // Issue definitions keyed by metric
+    const ISSUE_DEFS = {
+      lcp: { title: 'Slow Largest Contentful Paint (hero/main image)', desc: v => `The largest above-the-fold element takes ${(v/1000).toFixed(1)}s to load on mobile. This is usually an oversized hero or banner image and is the biggest driver of the slow load.`, impact: 'The single biggest cause of the slow mobile experience.' },
+      si:  { title: 'High Speed Index', desc: v => `Visible content takes ${(v/1000).toFixed(1)}s to fully paint, so the page feels sluggish as it loads.`, impact: 'Page feels slow while rendering.' },
+      fcp: { title: 'Delayed First Contentful Paint', desc: v => `The first content appears after ${(v/1000).toFixed(1)}s, often due to render-blocking scripts and stylesheets.`, impact: 'Delays the very first thing visitors see.' },
+      tbt: { title: 'High Total Blocking Time', desc: v => `The page is unresponsive for ${Math.round(v)}ms while heavy JavaScript runs &mdash; frequently from third-party apps and tracking scripts.`, impact: 'Buttons/links feel laggy on load.' },
+      cls: { title: 'Layout shifting (Cumulative Layout Shift)', desc: v => `Elements move around while loading (CLS ${v.toFixed(3)}), usually from images/ads without reserved space.`, impact: 'Frustrating jumps; can cause mis-taps.' }
+    };
+
+    function severity(cls) { return cls === 'bad' ? 'high' : cls === 'ok' ? 'med' : 'low'; }
+
+    function buildIssues(mob) {
+      const order = ['lcp','si','fcp','tbt','cls'];
+      const found = [];
+      order.forEach(k => {
+        const st = statusFor(k, mob[k].num);
+        if (st.cls !== 'good') {
+          const d = ISSUE_DEFS[k];
+          const sev = severity(st.cls);
+          found.push(`<div class="issue ${sev}"><div class="issue-head"><span class="sev ${sev}">${sev === 'high' ? 'High' : sev === 'med' ? 'Medium' : 'Low'}</span><h3>${d.title}</h3></div><p>${d.desc(mob[k].num)}</p><div class="impact">Impact: ${d.impact}</div></div>`);
+        }
+      });
+      if (!found.length) {
+        found.push(`<div class="issue low"><div class="issue-head"><span class="sev low">Low</span><h3>Already in good shape</h3></div><p>Core Web Vitals are mostly within Google's targets. There are still fine-tuning wins available (image compression, unused code, caching) to protect and extend this performance.</p></div>`);
+      }
+      return found.join('');
+    }
+
+    const RECS = [
+      'Resize, compress and prioritize the hero image (with preload) to cut LCP',
+      'Defer non-critical scripts and remove unused / duplicate app code',
+      'Compress and lazy-load all below-the-fold images',
+      'Minify custom CSS &amp; JavaScript and clean up leftover code',
+      'Optimize font loading so text appears instantly',
+      'Re-test on Google PageSpeed and deliver a Before/After report with real numbers'
+    ];
+
+    function pickPackage(mob) {
+      if (mob.score < 50) return { name: 'Recommended: Full Optimization package', price: '$549', small: ' · delivered in 6 days', desc: 'Deep optimization of every issue above, plus app/bloat cleanup, advanced minification, a Before/After report and 14 days of support. Measurable improvement, guaranteed.' };
+      return { name: 'Recommended: Speed Boost package', price: '$249', small: ' · delivered in 4 days', desc: 'Full optimization of the issues above, plus a Before/After report and 7 days of support. Measurable improvement, guaranteed.' };
+    }
+
+    function metricRow(label, display, target, metricKey, num) {
+      const st = statusFor(metricKey, num);
+      return `<tr><td class="metric">${label}</td><td>${display}</td><td>${target}</td><td><span class="pill ${st.cls}">${st.label}</span></td></tr>`;
+    }
+
+    function render(client, url, mob, desk) {
+      $('r-client').textContent = client || '—';
+      $('r-url').textContent = url.replace(/^https?:\/\//,'').replace(/\/$/,'');
+      $('r-date').textContent = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+
+      $('r-summary').innerHTML = buildSummary(client, mob, desk);
+
+      $('r-mob-score').className = 'score-ring ' + scoreColor(mob.score);
+      $('r-mob-score').textContent = mob.score;
+      $('r-desk-score').className = 'score-ring ' + scoreColor(desk.score);
+      $('r-desk-score').textContent = desk.score;
+
+      $('r-metrics').innerHTML =
+        metricRow('Largest Contentful Paint (LCP)', mob.lcp.display, '&lt; 2.5 s', 'lcp', mob.lcp.num) +
+        metricRow('Speed Index', mob.si.display, '&lt; 3.4 s', 'si', mob.si.num) +
+        metricRow('First Contentful Paint (FCP)', mob.fcp.display, '&lt; 1.8 s', 'fcp', mob.fcp.num) +
+        metricRow('Total Blocking Time (TBT)', mob.tbt.display, '&lt; 200 ms', 'tbt', mob.tbt.num) +
+        metricRow('Cumulative Layout Shift (CLS)', mob.cls.display, '&lt; 0.1', 'cls', mob.cls.num);
+
+      $('r-issues').innerHTML = buildIssues(mob);
+      $('r-recs').innerHTML = RECS.map(r => `<li>${r}</li>`).join('');
+
+      $('r-exp-now').className = 'val ' + scoreColor(mob.score);
+      $('r-exp-now').textContent = mob.score;
+      $('r-exp-target').textContent = mob.score >= 90 ? '95' : '90+';
+
+      const pkg = pickPackage(mob);
+      $('r-pkg-name').textContent = pkg.name;
+      $('r-pkg-price').innerHTML = pkg.price + ' <small>' + pkg.small + '</small>';
+      $('r-pkg-desc').textContent = pkg.desc;
+
+      $('report').style.display = 'block';
+      $('pdf').style.display = 'inline-flex';
+    }
+
+    $('run').addEventListener('click', async () => {
+      let url = $('url').value.trim();
+      const client = $('client').value.trim();
+      const key = $('apikey').value.trim();
+      if (!url) { setStatus('Please enter a store URL.', 'err'); return; }
+      if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; $('url').value = url; }
+      if (key) localStorage.setItem(KEY_STORE, key);
+
+      const btn = $('run');
+      btn.disabled = true;
+      setStatus('<span class="spinner"></span> Analyzing mobile &amp; desktop via Google PageSpeed… this can take 20–40s.', 'info');
+      try {
+        const [mobLr, deskLr] = await Promise.all([
+          fetchPSI(url, 'mobile', key),
+          fetchPSI(url, 'desktop', key)
+        ]);
+        const mob = extract(mobLr);
+        const desk = extract(deskLr);
+        render(client, url, mob, desk);
+        setStatus('✓ Report generated. Review it below, then click <strong>Save as PDF</strong>.', 'ok');
+        $('report').scrollIntoView({ behavior: 'smooth' });
+      } catch (e) {
+        let msg = e.message || 'Something went wrong.';
+        if (/quota|429/i.test(msg)) msg = 'Rate limit hit. Add your free Google PageSpeed API key above (25,000 requests/day free).';
+        if (/API key not valid|API_KEY_INVALID/i.test(msg)) msg = 'That API key is not valid. Double-check it in Google Cloud Console.';
+        setStatus('⚠ ' + msg, 'err');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    $('pdf').addEventListener('click', () => window.print());
+  </script>
+</body>
+</html>
