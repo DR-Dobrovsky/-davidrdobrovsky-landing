@@ -567,8 +567,24 @@ function dl(blob,name){
   a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
 }
 
-$('worker').value=localStorage.getItem(LSW)||'';
-$('dbid').value=localStorage.getItem(LSD)||'';
+/* Restore all saved settings on load, and keep them saved as you type. */
+$('key').value    = localStorage.getItem(LSK)||'';
+$('worker').value = localStorage.getItem(LSW)||'';
+$('dbid').value   = localStorage.getItem(LSD)||'';
+
+function persist(el, storeKey){
+  function put(){
+    var v=el.value.trim();
+    if(v){ localStorage.setItem(storeKey, v); } else { localStorage.removeItem(storeKey); }
+  }
+  el.addEventListener('input', put);
+  el.addEventListener('change', put);
+  el.addEventListener('blur', put);
+}
+persist($('key'), LSK);
+persist($('worker'), LSW);
+persist($('dbid'), LSD);
+
 
 function doPush(list){
   var url=$('worker').value.trim().replace(/\/$/,'');
