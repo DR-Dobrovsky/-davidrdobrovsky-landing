@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 <style>
   :root{--ink:#0f172a;--body:#334155;--muted:#64748b;--line:#e2e8f0;--bg:#f8fafc;--white:#fff;
-        --accent:#16a34a;--accent2:#15803d;--red:#dc2626;--reds:#fee2e2;--amb:#d97706;--ambs:#fef3c7;--grn:#16a34a;--grns:#dcfce7;--blue:#1e40af;--blues:#eff6ff}
+        --accent:#16a34a;--accent2:#15803d;--red:#dc2626;--reds:#fee2e2;--amb:#d97706;--grn:#16a34a;--grns:#dcfce7;--blue:#1e40af;--blues:#eff6ff}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--body);line-height:1.6;padding:24px}
   .wrap{max-width:1240px;margin:0 auto}
@@ -84,7 +84,7 @@
     </div>
     <div class="field">
       <label for="bulk">Store URLs - one per line</label>
-      <textarea id="bulk" placeholder="pinkcityprints.com, Molly, hello@pinkcityprints.com&#10;folcland.com, , shop@folcland.com"></textarea>
+      <textarea id="bulk" placeholder="pinkcityprints.com, Molly, hello@pinkcityprints.com"></textarea>
       <div class="hint">Format: <b>domain, contact name, email</b> - name and email are optional.</div>
     </div>
     <div class="acts">
@@ -136,7 +136,6 @@
     </div>
     <div class="acts">
       <button id="push" class="btn p">Push all leads to Notion</button>
-      <span class="hint" id="pushCount"></span>
     </div>
     <div id="pst" class="status"></div>
   </div>
@@ -154,81 +153,84 @@
 </div></dialog>
 
 <script>
-const $=i=>document.getElementById(i);
-const LS='dd_leads_v1', LSK='psi_api_key';
-let leads=JSON.parse(localStorage.getItem(LS)||'[]');
-$('key').value=localStorage.getItem(LSK)||'';
+var NL = String.fromCharCode(10);
+var BOM = String.fromCharCode(65279);
+var QT = String.fromCharCode(34);
 
-const STATUSES=['Not contacted','Emailed','Follow-up 1','Follow-up 2','Replied','Report sent','Client','Not interested'];
-const save=()=>{localStorage.setItem(LS,JSON.stringify(leads));render();};
-const msg=(t,c)=>{const s=$('st');s.className='status show '+c;s.innerHTML=t;};
-const col=v=>v==null?'':v>=90?'gr':v>=50?'a':'r';
-const dash='-';
-const today=()=>new Date().toISOString().slice(0,10);
-const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
-const titleize=d=>d.replace(/^www\./,'').replace(/\.(com|co\.uk|co|io|net|org|shop|store|london|studio|design)$/,'')
-  .split(/[-.]/).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+function $(i){ return document.getElementById(i); }
+var LS='dd_leads_v1', LSK='psi_api_key', LSW='dd_worker_url', LSD='dd_notion_db';
+var leads = JSON.parse(localStorage.getItem(LS)||'[]');
+var STATUSES=['Not contacted','Emailed','Follow-up 1','Follow-up 2','Replied','Report sent','Client','Not interested'];
+var dash='-';
 
-async function psi(url,strategy,key){
-  const api='https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url='+encodeURIComponent(url)
-    +'&strategy='+strategy+'&category=performance'+(key?'&key='+encodeURIComponent(key):'');
-  const r=await fetch(api); const d=await r.json();
-  if(d.error) throw new Error(d.error.message||('HTTP '+r.status));
-  const lr=d.lighthouseResult, a=lr.audits;
-  return {score:Math.round(lr.categories.performance.score*100),
-    lcp:a['largest-contentful-paint'].displayValue,lcpMs:a['largest-contentful-paint'].numericValue,
-    fcp:a['first-contentful-paint'].displayValue,tbt:a['total-blocking-time'].displayValue,
-    tbtMs:a['total-blocking-time'].numericValue,cls:a['cumulative-layout-shift'].displayValue,
-    si:a['speed-index'].displayValue,bytes:a['total-byte-weight']?a['total-byte-weight'].displayValue:''};
+function save(){ localStorage.setItem(LS, JSON.stringify(leads)); render(); }
+function msg(t,c){ var s=$('st'); s.className='status show '+c; s.innerHTML=t; }
+function pmsg(t,c){ var s=$('pst'); s.className='status show '+c; s.innerHTML=t; }
+function col(v){ return v==null?'':(v>=90?'gr':(v>=50?'a':'r')); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function addDays(d,n){ var x=new Date(d); x.setDate(x.getDate()+n); return x.toISOString().slice(0,10); }
+function titleize(d){
+  return d.replace(/^www\./,'').replace(/\.(com|co\.uk|co|io|net|org|shop|store|london|studio|design)$/,'')
+    .split(/[-.]/).map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join(' ');
+}
+
+function psi(url, strategy, key){
+  var api='https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url='+encodeURIComponent(url)
+    +'&strategy='+strategy+'&category=performance'+(key?('&key='+encodeURIComponent(key)):'');
+  return fetch(api).then(function(r){ return r.json(); }).then(function(d){
+    if(d.error) throw new Error(d.error.message||'PageSpeed error');
+    var lr=d.lighthouseResult, a=lr.audits;
+    return {
+      score: Math.round(lr.categories.performance.score*100),
+      lcp: a['largest-contentful-paint'].displayValue,
+      lcpMs: a['largest-contentful-paint'].numericValue,
+      fcp: a['first-contentful-paint'].displayValue,
+      tbt: a['total-blocking-time'].displayValue,
+      tbtMs: a['total-blocking-time'].numericValue,
+      cls: a['cumulative-layout-shift'].displayValue,
+      si: a['speed-index'].displayValue,
+      bytes: a['total-byte-weight'] ? a['total-byte-weight'].displayValue : ''
+    };
+  });
 }
 
 function buildEmail(l){
-  const brand=l.company, who=l.contact?l.contact:null;
-  const greet=who?('Hi '+who+',') : ('Hi '+brand+' team,');
-  const m=l.mobile, lcp=l.lcp||dash;
-  let problem;
-  if(l.tbtMs>600) problem='The biggest issue was '+l.tbt+' of Total Blocking Time, alongside an LCP of '+lcp+'.';
-  else if(l.lcpMs>8000) problem='The largest content on the page took '+lcp+" to appear (Google's target is under 2.5s).";
-  else problem='Largest Contentful Paint came in at '+lcp+", above Google's 2.5s target.";
-  const sub = m<50 ? (brand+' scores '+m+'/100 on mobile') : ('Quick mobile-speed finding for '+brand);
-  const deskTxt = (l.desktop!=null) ? (' (desktop '+l.desktop+'/100)') : '';
-  const body=
-greet+"
-
-"+
-"I was looking through the "+brand+" storefront - the product presentation really stands out, which is exactly why fast mobile loading matters so much.
-
-"+
-"I ran your homepage through Google PageSpeed. The current mobile lab score was "+m+"/100"+deskTxt+". "+problem+"
-
-"+
-"This is a simulated mobile test rather than every customer's exact experience, but it points to concrete, fixable opportunities - mainly image delivery, render-blocking scripts and unused code, not a redesign.
-
-"+
-"I specialize in Shopify speed optimization. Would you like me to send you a free PDF report with the findings and the fixes I'd prioritize?
-
-"+
-"Best,
-David
-Shopify Speed Optimization
-davidrdobrovsky.com";
-  return {sub,body};
+  var brand=l.company;
+  var greet = l.contact ? ('Hi '+l.contact+',') : ('Hi '+brand+' team,');
+  var m=l.mobile, lcp=l.lcp||dash;
+  var problem;
+  if(l.tbtMs>600){ problem='The biggest issue was '+l.tbt+' of Total Blocking Time, alongside an LCP of '+lcp+'.'; }
+  else if(l.lcpMs>8000){ problem='The largest content on the page took '+lcp+" to appear (Google's target is under 2.5s)."; }
+  else { problem='Largest Contentful Paint came in at '+lcp+", above Google's 2.5s target."; }
+  var sub = (m<50) ? (brand+' scores '+m+'/100 on mobile') : ('Quick mobile-speed finding for '+brand);
+  var deskTxt = (l.desktop!=null) ? (' (desktop '+l.desktop+'/100)') : '';
+  var P = NL+NL;
+  var body = greet + P
+    + 'I was looking through the '+brand+' storefront - the product presentation really stands out, which is exactly why fast mobile loading matters so much.' + P
+    + 'I ran your homepage through Google PageSpeed. The current mobile lab score was '+m+'/100'+deskTxt+'. '+problem + P
+    + "This is a simulated mobile test rather than every customer's exact experience, but it points to concrete, fixable opportunities - mainly image delivery, render-blocking scripts and unused code, not a redesign." + P
+    + "I specialize in Shopify speed optimization. Would you like me to send you a free PDF report with the findings and the fixes I'd prioritize?" + P
+    + 'Best,' + NL + 'David' + NL + 'Shopify Speed Optimization' + NL + 'davidrdobrovsky.com';
+  return { sub: sub, body: body };
 }
 
 function render(){
-  const tb=$('rows'); tb.innerHTML='';
-  $('empty').style.display=leads.length?'none':'block';
-  leads.forEach((l,i)=>{
-    const tr=document.createElement('tr');
-    const overdue=l.followUp && l.followUp<=today() && !['Replied','Report sent','Client','Not interested'].includes(l.status);
-    tr.innerHTML=
+  var tb=$('rows'); tb.innerHTML='';
+  $('empty').style.display = leads.length ? 'none' : 'block';
+  leads.forEach(function(l,i){
+    var tr=document.createElement('tr');
+    var closed = ['Replied','Report sent','Client','Not interested'].indexOf(l.status)>=0;
+    var overdue = l.followUp && l.followUp<=today() && !closed;
+    var opts='';
+    STATUSES.forEach(function(s){ opts += '<option'+(s===l.status?' selected':'')+'>'+s+'</option>'; });
+    tr.innerHTML =
       '<td class="co">'+l.company+'<div style="font-weight:400;color:var(--muted);font-size:11px">'+l.domain+'</div></td>'+
       '<td class="sc '+col(l.mobile)+'">'+(l.mobile==null?dash:l.mobile)+'</td>'+
       '<td class="sc '+col(l.desktop)+'">'+(l.desktop==null?dash:l.desktop)+'</td>'+
       '<td>'+(l.lcp||dash)+'</td>'+
-      '<td><input value="'+(l.email||'')+'" data-f="email" data-i="'+i+'" placeholder="email@..." style="min-width:170px;padding:5px 8px;font-size:12px"></td>'+
+      '<td><input value="'+(l.email||'')+'" data-f="email" data-i="'+i+'" placeholder="email" style="min-width:170px;padding:5px 8px;font-size:12px"></td>'+
       '<td><input value="'+(l.contact||'')+'" data-f="contact" data-i="'+i+'" placeholder="name" style="min-width:90px;padding:5px 8px;font-size:12px"></td>'+
-      '<td><select class="st" data-f="status" data-i="'+i+'">'+STATUSES.map(s=>'<option'+(s===l.status?' selected':'')+'>'+s+'</option>').join('')+'</select></td>'+
+      '<td><select class="st" data-f="status" data-i="'+i+'">'+opts+'</select></td>'+
       '<td style="white-space:nowrap;font-size:12px">'+(l.emailedOn||dash)+'</td>'+
       '<td style="white-space:nowrap;font-size:12px;'+(overdue?'color:var(--red);font-weight:800':'')+'">'+(l.followUp||dash)+'</td>'+
       '<td style="white-space:nowrap">'+
@@ -238,119 +240,190 @@ function render(){
       '</td>';
     tb.appendChild(tr);
   });
-  $('s-total').textContent=leads.length;
-  $('s-emailed').textContent=leads.filter(l=>l.emailedOn).length;
-  $('s-replied').textContent=leads.filter(l=>['Replied','Report sent','Client'].includes(l.status)).length;
-  $('s-due').textContent=leads.filter(l=>l.followUp&&l.followUp<=today()&&!['Replied','Report sent','Client','Not interested'].includes(l.status)).length;
-  $('s-clients').textContent=leads.filter(l=>l.status==='Client').length;
+  $('s-total').textContent = leads.length;
+  $('s-emailed').textContent = leads.filter(function(l){ return l.emailedOn; }).length;
+  $('s-replied').textContent = leads.filter(function(l){ return ['Replied','Report sent','Client'].indexOf(l.status)>=0; }).length;
+  $('s-due').textContent = leads.filter(function(l){
+    return l.followUp && l.followUp<=today() && ['Replied','Report sent','Client','Not interested'].indexOf(l.status)<0; }).length;
+  $('s-clients').textContent = leads.filter(function(l){ return l.status==='Client'; }).length;
 }
 
-$('rows').addEventListener('change',e=>{
-  const f=e.target.dataset.f, i=e.target.dataset.i;
+$('rows').addEventListener('change', function(e){
+  var f=e.target.dataset.f, i=e.target.dataset.i;
   if(!f) return;
   leads[i][f]=e.target.value;
-  if(f==='status'&&e.target.value==='Emailed'&&!leads[i].emailedOn){leads[i].emailedOn=today(); leads[i].followUp=addDays(today(),4);}
+  if(f==='status' && e.target.value==='Emailed' && !leads[i].emailedOn){
+    leads[i].emailedOn=today(); leads[i].followUp=addDays(today(),4);
+  }
   save();
 });
-$('rows').addEventListener('click',e=>{
-  const act=e.target.dataset.act, i=e.target.dataset.i;
+
+$('rows').addEventListener('click', function(e){
+  var act=e.target.dataset.act, i=e.target.dataset.i;
   if(!act) return;
-  const l=leads[i];
-  if(act==='del'){ if(confirm('Remove '+l.company+'?')){leads.splice(i,1);save();} return; }
-  if(act==='sent'){ l.status=l.status==='Emailed'?'Follow-up 1':'Emailed'; l.emailedOn=today(); l.followUp=addDays(today(),4); save(); return; }
+  var l=leads[i];
+  if(act==='del'){ if(confirm('Remove '+l.company+'?')){ leads.splice(i,1); save(); } return; }
+  if(act==='sent'){
+    l.status = (l.status==='Emailed') ? 'Follow-up 1' : 'Emailed';
+    l.emailedOn=today(); l.followUp=addDays(today(),4); save(); return;
+  }
   if(act==='mail'){
-    if(l.mobile==null){alert('Measure this lead first so the email can include real numbers.');return;}
-    const r=buildEmail(l);
+    if(l.mobile==null){ alert('Measure this lead first so the email can include real numbers.'); return; }
+    var r=buildEmail(l);
     $('dlg-t').textContent='Email draft - '+l.company;
     $('dlg-s').innerHTML='<b>To:</b> '+(l.email||'(add an email)')+' &nbsp;|&nbsp; <b>Subject:</b> '+r.sub;
     $('dlg-b').textContent=r.body;
-    $('cp').onclick=()=>{navigator.clipboard.writeText(r.body);$('cp').textContent='Copied!';setTimeout(()=>$('cp').textContent='Copy to clipboard',1500);};
-    $('mailto').onclick=()=>{window.location.href='mailto:'+(l.email||'')+'?subject='+encodeURIComponent(r.sub)+'&body='+encodeURIComponent(r.body);};
+    $('cp').onclick=function(){
+      navigator.clipboard.writeText(r.body);
+      $('cp').textContent='Copied!';
+      setTimeout(function(){ $('cp').textContent='Copy to clipboard'; },1500);
+    };
+    $('mailto').onclick=function(){
+      window.location.href='mailto:'+(l.email||'')+'?subject='+encodeURIComponent(r.sub)+'&body='+encodeURIComponent(r.body);
+    };
     $('dlg').showModal();
   }
 });
-$('cl').onclick=()=>$('dlg').close();
 
-$('addBlank').onclick=()=>{
-  const d=prompt('Domain (e.g. example.com)'); if(!d) return;
-  leads.push({domain:d.trim().replace(/^https?:\/\//,'').replace(/\/$/,''),company:titleize(d.trim()),status:'Not contacted',added:today()});
+$('cl').onclick=function(){ $('dlg').close(); };
+
+$('addBlank').onclick=function(){
+  var d=prompt('Domain (e.g. example.com)');
+  if(!d) return;
+  var dom=d.trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
+  leads.push({ domain:dom, company:titleize(dom), status:'Not contacted', added:today() });
   save();
 };
 
-$('run').onclick=async()=>{
-  const key=$('key').value.trim(); if(key) localStorage.setItem(LSK,key);
-  const lines=$('bulk').value.split('
-').map(s=>s.trim()).filter(Boolean);
-  if(!lines.length){msg('Paste at least one domain first.','e');return;}
-  const btn=$('run'); btn.disabled=true;
-  let ok=0, fail=[];
-  for(let n=0;n<lines.length;n++){
-    const parts=lines[n].split(',').map(s=>(s||'').trim());
-    const dRaw=parts[0], contact=parts[1], email=parts[2];
-    const domain=dRaw.replace(/^https?:\/\//,'').replace(/\/$/,'');
+$('run').onclick=function(){
+  var key=$('key').value.trim();
+  if(key) localStorage.setItem(LSK,key);
+  var lines=$('bulk').value.split(NL).map(function(s){ return s.trim(); }).filter(function(s){ return s.length>0; });
+  if(!lines.length){ msg('Paste at least one domain first.','e'); return; }
+  var btn=$('run'); btn.disabled=true;
+  var ok=0, fail=[], n=0;
+
+  function step(){
+    if(n>=lines.length){
+      btn.disabled=false;
+      var t='Measured '+ok+' of '+lines.length+'.';
+      t += fail.length ? (' Failed: '+fail.join('; ')) : ' Now add emails, then use the Email button per lead.';
+      msg(t, fail.length?'e':'o');
+      if(ok) $('bulk').value='';
+      return;
+    }
+    var parts=lines[n].split(',').map(function(s){ return (s||'').trim(); });
+    var domain=parts[0].replace(/^https?:\/\//,'').replace(/\/$/,'');
     msg('<span class="spin"></span> Measuring '+(n+1)+'/'+lines.length+': <b>'+domain+'</b> ... (20-40s each)','i');
-    const url='https://'+domain;
-    let rec=leads.find(l=>l.domain===domain);
-    if(!rec){rec={domain,company:titleize(domain),status:'Not contacted',added:today()};leads.push(rec);}
-    if(contact) rec.contact=contact; if(email) rec.email=email;
-    try{
-      const res=await Promise.all([psi(url,'mobile',key),psi(url,'desktop',key)]);
-      const m=res[0], d=res[1];
-      Object.assign(rec,{mobile:m.score,desktop:d.score,lcp:m.lcp,lcpMs:m.lcpMs,fcp:m.fcp,tbt:m.tbt,tbtMs:m.tbtMs,cls:m.cls,si:m.si,bytes:m.bytes,measuredOn:today()});
+    var rec=null;
+    for(var k=0;k<leads.length;k++){ if(leads[k].domain===domain){ rec=leads[k]; break; } }
+    if(!rec){ rec={ domain:domain, company:titleize(domain), status:'Not contacted', added:today() }; leads.push(rec); }
+    if(parts[1]) rec.contact=parts[1];
+    if(parts[2]) rec.email=parts[2];
+    var url='https://'+domain;
+
+    Promise.all([psi(url,'mobile',key), psi(url,'desktop',key)]).then(function(res){
+      var m=res[0], d=res[1];
+      rec.mobile=m.score; rec.desktop=d.score; rec.lcp=m.lcp; rec.lcpMs=m.lcpMs; rec.fcp=m.fcp;
+      rec.tbt=m.tbt; rec.tbtMs=m.tbtMs; rec.cls=m.cls; rec.si=m.si; rec.bytes=m.bytes;
+      rec.measuredOn=today();
       ok++;
-    }catch(err){
-      let t=err.message||'error';
+    }).catch(function(err){
+      var t=err.message||'error';
       if(/quota|429/i.test(t)) t='rate limit - add your free API key';
       if(/API_KEY_INVALID|not valid/i.test(t)) t='invalid API key';
       fail.push(domain+' ('+t+')');
-    }
-    save();
+    }).then(function(){
+      save(); n++; step();
+    });
   }
-  btn.disabled=false;
-  msg('Measured '+ok+' of '+lines.length+'.'+(fail.length?(' Failed: '+fail.join('; ')):' Now add emails, then use the Email button per lead.'),fail.length?'e':'o');
-  if(ok) $('bulk').value='';
+  step();
 };
 
-const CSV_COLS=[['Company','company'],['Website','domain'],['Contact name','contact'],['Contact email','email'],
+var CSV_COLS=[['Company','company'],['Website','domain'],['Contact name','contact'],['Contact email','email'],
   ['Status','status'],['Mobile score','mobile'],['Desktop score','desktop'],['LCP','lcp'],['FCP','fcp'],
   ['TBT','tbt'],['CLS','cls'],['Speed Index','si'],['Page weight','bytes'],
-  ['Date measured','measuredOn'],['Date emailed','emailedOn'],['Follow-up due','followUp'],['Date added','added'],['Notes','notes']];
-$('csv').onclick=()=>{
-  if(!leads.length){alert('No leads to export.');return;}
-  const esc=v=>{v=(v==null?'':String(v));return /[",
-]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
-  const csv=[CSV_COLS.map(c=>c[0]).join(',')].concat(leads.map(l=>CSV_COLS.map(c=>esc(l[c[1]])).join(','))).join('
-');
-  dl(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}),'leads-'+today()+'.csv');
-};
-$('json').onclick=()=>dl(new Blob([JSON.stringify(leads,null,2)],{type:'application/json'}),'leads-backup-'+today()+'.json');
-$('imp').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const d=JSON.parse(r.result);if(Array.isArray(d)){leads=d;save();alert('Restored '+d.length+' leads.');}}catch(x){alert('Invalid JSON file.');}};r.readAsText(f);};
-$('clear').onclick=()=>{if(confirm('Delete ALL leads? Export a backup first.')){leads=[];save();}};
-function dl(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
+  ['Date measured','measuredOn'],['Date emailed','emailedOn'],['Follow-up due','followUp'],
+  ['Date added','added'],['Notes','notes']];
 
-const LSW='dd_worker_url', LSD='dd_notion_db';
+$('csv').onclick=function(){
+  if(!leads.length){ alert('No leads to export.'); return; }
+  function esc(v){
+    v = (v==null) ? '' : String(v);
+    var needs = (v.indexOf(',')>=0) || (v.indexOf(QT)>=0) || (v.indexOf(NL)>=0);
+    return needs ? (QT + v.split(QT).join(QT+QT) + QT) : v;
+  }
+  var head = CSV_COLS.map(function(c){ return c[0]; }).join(',');
+  var body = leads.map(function(l){
+    return CSV_COLS.map(function(c){ return esc(l[c[1]]); }).join(',');
+  });
+  var csv = [head].concat(body).join(NL);
+  dl(new Blob([BOM+csv],{type:'text/csv;charset=utf-8'}), 'leads-'+today()+'.csv');
+};
+
+$('json').onclick=function(){
+  dl(new Blob([JSON.stringify(leads,null,2)],{type:'application/json'}), 'leads-backup-'+today()+'.json');
+};
+
+$('imp').onchange=function(e){
+  var f=e.target.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var d=JSON.parse(r.result);
+      if(Array.isArray(d)){ leads=d; save(); alert('Restored '+d.length+' leads.'); }
+    }catch(x){ alert('Invalid JSON file.'); }
+  };
+  r.readAsText(f);
+};
+
+$('clear').onclick=function(){
+  if(confirm('Delete ALL leads? Export a backup first.')){ leads=[]; save(); }
+};
+
+function dl(blob,name){
+  var u=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u);
+}
+
 $('worker').value=localStorage.getItem(LSW)||'';
 $('dbid').value=localStorage.getItem(LSD)||'';
-const pmsg=(t,c)=>{const s=$('pst');s.className='status show '+c;s.innerHTML=t;};
-$('push').onclick=async()=>{
-  const url=$('worker').value.trim().replace(/\/$/,''); const db=$('dbid').value.trim();
-  if(!url||!db){pmsg('Enter both your Worker URL and Notion Database ID.','e');return;}
+
+$('push').onclick=function(){
+  var url=$('worker').value.trim().replace(/\/$/,'');
+  var db=$('dbid').value.trim();
+  if(!url||!db){ pmsg('Enter both your Worker URL and Notion Database ID.','e'); return; }
   localStorage.setItem(LSW,url); localStorage.setItem(LSD,db);
-  if(!leads.length){pmsg('No leads to push.','e');return;}
-  const btn=$('push'); btn.disabled=true; let ok=0, fail=[];
-  for(let i=0;i<leads.length;i++){
-    const l=leads[i];
+  if(!leads.length){ pmsg('No leads to push.','e'); return; }
+  var btn=$('push'); btn.disabled=true;
+  var ok=0, fail=[], i=0;
+
+  function step(){
+    if(i>=leads.length){
+      btn.disabled=false;
+      var t='Pushed '+ok+'/'+leads.length+' to Notion.';
+      t += fail.length ? (' Failed: '+fail.join('; ')) : ' Open Notion to confirm.';
+      pmsg(t, fail.length?'e':'o');
+      return;
+    }
+    var l=leads[i];
     pmsg('<span class="spin"></span> Pushing '+(i+1)+'/'+leads.length+': <b>'+l.company+'</b> ...','i');
-    try{
-      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({databaseId:db,lead:l})});
-      const d=await r.json().catch(()=>({}));
-      if(!r.ok||d.ok===false) throw new Error(d.error||('HTTP '+r.status));
-      ok++;
-    }catch(e){ fail.push(l.company+' ('+(e.message||'error')+')'); }
+    fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ databaseId: db, lead: l })
+    }).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(d){
+        if(!r.ok || d.ok===false) throw new Error(d.error||('HTTP '+r.status));
+        ok++;
+      });
+    }).catch(function(e){
+      fail.push(l.company+' ('+(e.message||'error')+')');
+    }).then(function(){
+      i++; step();
+    });
   }
-  btn.disabled=false;
-  pmsg('Pushed '+ok+'/'+leads.length+' to Notion.'+(fail.length?(' Failed: '+fail.join('; ')):' Open Notion to confirm.'),fail.length?'e':'o');
+  step();
 };
 
 render();
